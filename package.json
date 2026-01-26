@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-image-marker",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "react-native-nitro-image-marker is a react native package built with Nitro",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -42,11 +42,11 @@
   "workspaces": [
     "example"
   ],
-  "repository": "https://github.com/prahlad/react-native-nitro-image-marker.git",
+  "repository": "https://github.com/devprahlad/react-native-nitro-image-marker.git",
   "author": "Prahlad",
   "license": "MIT",
-  "bugs": "https://github.com/prahlad/react-native-nitro-image-marker/issues",
-  "homepage": "https://github.com/prahlad/react-native-nitro-image-marker#readme",
+  "bugs": "https://github.com/devprahlad/react-native-nitro-image-marker/issues",
+  "homepage": "https://github.com/devprahlad/react-native-nitro-image-marker",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
