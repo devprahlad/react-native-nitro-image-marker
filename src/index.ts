@@ -13,6 +13,7 @@ import {
   type TextMarkOptions as NativeTextMarkOptions,
   type TextOptions as NativeTextOptions,
   type TextStyle as NativeTextStyle,
+  type TileOptions as NativeTileOptions,
   type WatermarkImageOptions as NativeWatermarkImageOptions,
 } from './specs/nitro-image-marker.nitro'
 
@@ -71,6 +72,8 @@ export interface TextStyle {
   rotate?: number
   strokeColor?: string
   strokeWidth?: number
+  alpha?: number
+  maxWidth?: number
 }
 
 export interface TextOptions {
@@ -95,6 +98,34 @@ export interface WatermarkImageOptions {
   alpha?: number
 }
 
+export interface CropOptions {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export interface FilterOptions {
+  brightness?: number
+  contrast?: number
+  grayscale?: boolean
+}
+
+export interface BlurRegion {
+  x: number
+  y: number
+  width: number
+  height: number
+  blurRadius?: number
+}
+
+export interface TileOptions {
+  tileText?: TextOptions
+  tileImage?: WatermarkImageOptions
+  spacing?: number
+  angle?: number
+}
+
 export interface TextMarkOptions {
   backgroundImage: ImageOptions
   watermarkTexts: TextOptions[]
@@ -102,6 +133,10 @@ export interface TextMarkOptions {
   filename?: string
   saveFormat?: ImageFormat
   maxSize?: number
+  crop?: CropOptions
+  filter?: FilterOptions
+  blurRegions?: BlurRegion[]
+  tile?: TileOptions
 }
 
 export interface ImageMarkOptions {
@@ -112,6 +147,10 @@ export interface ImageMarkOptions {
   filename?: string
   saveFormat?: ImageFormat
   maxSize?: number
+  crop?: CropOptions
+  filter?: FilterOptions
+  blurRegions?: BlurRegion[]
+  tile?: TileOptions
 }
 
 export type ImageSource = ImageSourcePropType | string
@@ -195,12 +234,26 @@ const toNativeWatermarkImageOptions = (
   position: toNativePositionOptions(options.position),
 })
 
+const toNativeTileOptions = (
+  tile?: TileOptions
+): NativeTileOptions | undefined => {
+  if (!tile) return tile
+  return {
+    ...tile,
+    tileText: tile.tileText ? toNativeTextOptions(tile.tileText) : undefined,
+    tileImage: tile.tileImage
+      ? toNativeWatermarkImageOptions(tile.tileImage)
+      : undefined,
+  }
+}
+
 const toNativeTextMarkOptions = (
   options: TextMarkOptions
 ): NativeTextMarkOptions => ({
   ...options,
   backgroundImage: toNativeImageOptions(options.backgroundImage),
   watermarkTexts: options.watermarkTexts.map(toNativeTextOptions),
+  tile: toNativeTileOptions(options.tile),
 })
 
 const toNativeImageMarkOptions = (
@@ -210,17 +263,30 @@ const toNativeImageMarkOptions = (
   backgroundImage: toNativeImageOptions(options.backgroundImage),
   watermarkImages: options.watermarkImages.map(toNativeWatermarkImageOptions),
   watermarkTexts: options.watermarkTexts?.map(toNativeTextOptions),
+  tile: toNativeTileOptions(options.tile),
 })
 
-export const markText = (options: TextMarkOptions): string =>
+export const markText = (options: TextMarkOptions): Promise<string> =>
   NitroImageMarker.markText(toNativeTextMarkOptions(options))
 
-export const markImage = (options: ImageMarkOptions): string =>
+export const markImage = (options: ImageMarkOptions): Promise<string> =>
   NitroImageMarker.markImage(toNativeImageMarkOptions(options))
+
+export const markTextBatch = (
+  optionsArray: TextMarkOptions[]
+): Promise<string[]> =>
+  NitroImageMarker.markTextBatch(optionsArray.map(toNativeTextMarkOptions))
+
+export const markImageBatch = (
+  optionsArray: ImageMarkOptions[]
+): Promise<string[]> =>
+  NitroImageMarker.markImageBatch(optionsArray.map(toNativeImageMarkOptions))
 
 const Marker = {
   markText,
   markImage,
+  markTextBatch,
+  markImageBatch,
 }
 
 export default Marker

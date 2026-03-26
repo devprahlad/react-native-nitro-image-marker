@@ -14,11 +14,19 @@
   },
   "autolinking": {
     "NitroImageMarker": {
-      "swift": "HybridNitroImageMarker",
-      "kotlin": "HybridNitroImageMarker"
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridNitroImageMarker"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridNitroImageMarker"
+      }
     }
   },
   "ignorePaths": [
-    "**/node_modules"
+    "**/node_modules",
+    "example",
+    "expo-example"
   ]
 }

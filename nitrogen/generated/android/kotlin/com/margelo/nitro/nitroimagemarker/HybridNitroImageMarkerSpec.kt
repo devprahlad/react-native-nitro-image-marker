@@ -10,6 +10,7 @@ package com.margelo.nitro.nitroimagemarker
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -24,36 +25,41 @@ import com.margelo.nitro.core.HybridObject
   "LocalVariableName", "PropertyName", "PrivatePropertyName", "FunctionName"
 )
 abstract class HybridNitroImageMarkerSpec: HybridObject() {
-  @DoNotStrip
-  private var mHybridData: HybridData = initHybrid()
-
-  init {
-    super.updateNative(mHybridData)
-  }
-
-  override fun updateNative(hybridData: HybridData) {
-    mHybridData = hybridData
-    super.updateNative(hybridData)
-  }
-
-  // Default implementation of `HybridObject.toString()`
-  override fun toString(): String {
-    return "[HybridObject NitroImageMarker]"
-  }
-
   // Properties
   
 
   // Methods
   @DoNotStrip
   @Keep
-  abstract fun markText(options: TextMarkOptions): String
+  abstract fun markText(options: TextMarkOptions): Promise<String>
   
   @DoNotStrip
   @Keep
-  abstract fun markImage(options: ImageMarkOptions): String
+  abstract fun markImage(options: ImageMarkOptions): Promise<String>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun markTextBatch(optionsArray: Array<TextMarkOptions>): Promise<Array<String>>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun markImageBatch(optionsArray: Array<ImageMarkOptions>): Promise<Array<String>>
 
-  private external fun initHybrid(): HybridData
+  // Default implementation of `HybridObject.toString()`
+  override fun toString(): String {
+    return "[HybridObject NitroImageMarker]"
+  }
+
+  // C++ backing class
+  @DoNotStrip
+  @Keep
+  protected open class CxxPart(javaPart: HybridNitroImageMarkerSpec): HybridObject.CxxPart(javaPart) {
+    // C++ JHybridNitroImageMarkerSpec::CxxPart::initHybrid(...)
+    external override fun initHybrid(): HybridData
+  }
+  override fun createCxxPart(): CxxPart {
+    return CxxPart(this)
+  }
 
   companion object {
     protected const val TAG = "HybridNitroImageMarkerSpec"

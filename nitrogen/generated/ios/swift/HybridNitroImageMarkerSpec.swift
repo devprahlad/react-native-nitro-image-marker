@@ -5,7 +5,6 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import Foundation
 import NitroModules
 
 /// See ``HybridNitroImageMarkerSpec``
@@ -14,8 +13,10 @@ public protocol HybridNitroImageMarkerSpec_protocol: HybridObject {
   
 
   // Methods
-  func markText(options: TextMarkOptions) throws -> String
-  func markImage(options: ImageMarkOptions) throws -> String
+  func markText(options: TextMarkOptions) throws -> Promise<String>
+  func markImage(options: ImageMarkOptions) throws -> Promise<String>
+  func markTextBatch(optionsArray: [TextMarkOptions]) throws -> Promise<[String]>
+  func markImageBatch(optionsArray: [ImageMarkOptions]) throws -> Promise<[String]>
 }
 
 public extension HybridNitroImageMarkerSpec_protocol {

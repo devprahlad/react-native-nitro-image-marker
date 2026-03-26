@@ -34,6 +34,14 @@ namespace margelo::nitro::nitroimagemarker { struct ImageOptions; }
 namespace margelo::nitro::nitroimagemarker { struct TextOptions; }
 // Forward declaration of `ImageFormat` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { enum class ImageFormat; }
+// Forward declaration of `CropOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct CropOptions; }
+// Forward declaration of `FilterOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct FilterOptions; }
+// Forward declaration of `BlurRegion` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct BlurRegion; }
+// Forward declaration of `TileOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct TileOptions; }
 
 #include "ImageOptions.hpp"
 #include "TextOptions.hpp"
@@ -41,6 +49,10 @@ namespace margelo::nitro::nitroimagemarker { enum class ImageFormat; }
 #include <optional>
 #include <string>
 #include "ImageFormat.hpp"
+#include "CropOptions.hpp"
+#include "FilterOptions.hpp"
+#include "BlurRegion.hpp"
+#include "TileOptions.hpp"
 
 namespace margelo::nitro::nitroimagemarker {
 
@@ -55,10 +67,14 @@ namespace margelo::nitro::nitroimagemarker {
     std::optional<std::string> filename     SWIFT_PRIVATE;
     std::optional<ImageFormat> saveFormat     SWIFT_PRIVATE;
     std::optional<double> maxSize     SWIFT_PRIVATE;
+    std::optional<CropOptions> crop     SWIFT_PRIVATE;
+    std::optional<FilterOptions> filter     SWIFT_PRIVATE;
+    std::optional<std::vector<BlurRegion>> blurRegions     SWIFT_PRIVATE;
+    std::optional<TileOptions> tile     SWIFT_PRIVATE;
 
   public:
     TextMarkOptions() = default;
-    explicit TextMarkOptions(ImageOptions backgroundImage, std::vector<TextOptions> watermarkTexts, std::optional<double> quality, std::optional<std::string> filename, std::optional<ImageFormat> saveFormat, std::optional<double> maxSize): backgroundImage(backgroundImage), watermarkTexts(watermarkTexts), quality(quality), filename(filename), saveFormat(saveFormat), maxSize(maxSize) {}
+    explicit TextMarkOptions(ImageOptions backgroundImage, std::vector<TextOptions> watermarkTexts, std::optional<double> quality, std::optional<std::string> filename, std::optional<ImageFormat> saveFormat, std::optional<double> maxSize, std::optional<CropOptions> crop, std::optional<FilterOptions> filter, std::optional<std::vector<BlurRegion>> blurRegions, std::optional<TileOptions> tile): backgroundImage(backgroundImage), watermarkTexts(watermarkTexts), quality(quality), filename(filename), saveFormat(saveFormat), maxSize(maxSize), crop(crop), filter(filter), blurRegions(blurRegions), tile(tile) {}
 
   public:
     friend bool operator==(const TextMarkOptions& lhs, const TextMarkOptions& rhs) = default;
@@ -79,7 +95,11 @@ namespace margelo::nitro {
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "quality"))),
         JSIConverter<std::optional<std::string>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "filename"))),
         JSIConverter<std::optional<margelo::nitro::nitroimagemarker::ImageFormat>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "saveFormat"))),
-        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxSize")))
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxSize"))),
+        JSIConverter<std::optional<margelo::nitro::nitroimagemarker::CropOptions>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "crop"))),
+        JSIConverter<std::optional<margelo::nitro::nitroimagemarker::FilterOptions>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "filter"))),
+        JSIConverter<std::optional<std::vector<margelo::nitro::nitroimagemarker::BlurRegion>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "blurRegions"))),
+        JSIConverter<std::optional<margelo::nitro::nitroimagemarker::TileOptions>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "tile")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::nitroimagemarker::TextMarkOptions& arg) {
@@ -90,6 +110,10 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "filename"), JSIConverter<std::optional<std::string>>::toJSI(runtime, arg.filename));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "saveFormat"), JSIConverter<std::optional<margelo::nitro::nitroimagemarker::ImageFormat>>::toJSI(runtime, arg.saveFormat));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "maxSize"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.maxSize));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "crop"), JSIConverter<std::optional<margelo::nitro::nitroimagemarker::CropOptions>>::toJSI(runtime, arg.crop));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "filter"), JSIConverter<std::optional<margelo::nitro::nitroimagemarker::FilterOptions>>::toJSI(runtime, arg.filter));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "blurRegions"), JSIConverter<std::optional<std::vector<margelo::nitro::nitroimagemarker::BlurRegion>>>::toJSI(runtime, arg.blurRegions));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "tile"), JSIConverter<std::optional<margelo::nitro::nitroimagemarker::TileOptions>>::toJSI(runtime, arg.tile));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -106,6 +130,10 @@ namespace margelo::nitro {
       if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "filename")))) return false;
       if (!JSIConverter<std::optional<margelo::nitro::nitroimagemarker::ImageFormat>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "saveFormat")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxSize")))) return false;
+      if (!JSIConverter<std::optional<margelo::nitro::nitroimagemarker::CropOptions>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "crop")))) return false;
+      if (!JSIConverter<std::optional<margelo::nitro::nitroimagemarker::FilterOptions>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "filter")))) return false;
+      if (!JSIConverter<std::optional<std::vector<margelo::nitro::nitroimagemarker::BlurRegion>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "blurRegions")))) return false;
+      if (!JSIConverter<std::optional<margelo::nitro::nitroimagemarker::TileOptions>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "tile")))) return false;
       return true;
     }
   };

@@ -26,7 +26,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JTextBackgroundStyle final: public jni::JavaClass<JTextBackgroundStyle> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextBackgroundStyle;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextBackgroundStyle;";
 
   public:
     /**

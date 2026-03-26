@@ -21,7 +21,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JRadiusValue final: public jni::JavaClass<JRadiusValue> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/RadiusValue;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/RadiusValue;";
 
   public:
     /**

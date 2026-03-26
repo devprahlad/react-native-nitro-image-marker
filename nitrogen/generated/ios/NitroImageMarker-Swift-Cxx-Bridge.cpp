@@ -14,6 +14,30 @@
 
 namespace margelo::nitro::nitroimagemarker::bridge::swift {
 
+  // pragma MARK: std::function<void(const std::string& /* result */)>
+  Func_void_std__string create_Func_void_std__string(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroImageMarker::Func_void_std__string::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::string& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
+  Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroImageMarker::Func_void_std__exception_ptr::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::exception_ptr& error) mutable -> void {
+      swiftClosure.call(error);
+    };
+  }
+  
+  // pragma MARK: std::function<void(const std::vector<std::string>& /* result */)>
+  Func_void_std__vector_std__string_ create_Func_void_std__vector_std__string_(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroImageMarker::Func_void_std__vector_std__string_::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::vector<std::string>& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
   // pragma MARK: std::shared_ptr<HybridNitroImageMarkerSpec>
   std::shared_ptr<HybridNitroImageMarkerSpec> create_std__shared_ptr_HybridNitroImageMarkerSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroImageMarker::HybridNitroImageMarkerSpec_cxx swiftPart = NitroImageMarker::HybridNitroImageMarkerSpec_cxx::fromUnsafe(swiftUnsafePointer);

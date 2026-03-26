@@ -19,7 +19,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JTextAlign final: public jni::JavaClass<JTextAlign> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextAlign;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextAlign;";
 
   public:
     /**

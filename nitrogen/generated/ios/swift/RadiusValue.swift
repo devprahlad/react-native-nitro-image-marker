@@ -5,7 +5,6 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import Foundation
 import NitroModules
 
 /**
@@ -49,21 +48,49 @@ public extension RadiusValue {
 
   @inline(__always)
   var topLeft: Double? {
-    return self.__topLeft.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__topLeft) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__topLeft)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
   var topRight: Double? {
-    return self.__topRight.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__topRight) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__topRight)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
   var bottomLeft: Double? {
-    return self.__bottomLeft.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__bottomLeft) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__bottomLeft)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
   var bottomRight: Double? {
-    return self.__bottomRight.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__bottomRight) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__bottomRight)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
 }

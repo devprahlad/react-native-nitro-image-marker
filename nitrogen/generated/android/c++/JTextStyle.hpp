@@ -32,7 +32,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JTextStyle final: public jni::JavaClass<JTextStyle> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextStyle;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextStyle;";
 
   public:
     /**
@@ -74,6 +74,10 @@ namespace margelo::nitro::nitroimagemarker {
       jni::local_ref<jni::JString> strokeColor = this->getFieldValue(fieldStrokeColor);
       static const auto fieldStrokeWidth = clazz->getField<jni::JDouble>("strokeWidth");
       jni::local_ref<jni::JDouble> strokeWidth = this->getFieldValue(fieldStrokeWidth);
+      static const auto fieldAlpha = clazz->getField<jni::JDouble>("alpha");
+      jni::local_ref<jni::JDouble> alpha = this->getFieldValue(fieldAlpha);
+      static const auto fieldMaxWidth = clazz->getField<jni::JDouble>("maxWidth");
+      jni::local_ref<jni::JDouble> maxWidth = this->getFieldValue(fieldMaxWidth);
       return TextStyle(
         color != nullptr ? std::make_optional(color->toStdString()) : std::nullopt,
         fontName != nullptr ? std::make_optional(fontName->toStdString()) : std::nullopt,
@@ -90,7 +94,9 @@ namespace margelo::nitro::nitroimagemarker {
         bold != nullptr ? std::make_optional(static_cast<bool>(bold->value())) : std::nullopt,
         rotate != nullptr ? std::make_optional(rotate->value()) : std::nullopt,
         strokeColor != nullptr ? std::make_optional(strokeColor->toStdString()) : std::nullopt,
-        strokeWidth != nullptr ? std::make_optional(strokeWidth->value()) : std::nullopt
+        strokeWidth != nullptr ? std::make_optional(strokeWidth->value()) : std::nullopt,
+        alpha != nullptr ? std::make_optional(alpha->value()) : std::nullopt,
+        maxWidth != nullptr ? std::make_optional(maxWidth->value()) : std::nullopt
       );
     }
 
@@ -100,7 +106,7 @@ namespace margelo::nitro::nitroimagemarker {
      */
     [[maybe_unused]]
     static jni::local_ref<JTextStyle::javaobject> fromCpp(const TextStyle& value) {
-      using JSignature = JTextStyle(jni::alias_ref<jni::JString>, jni::alias_ref<jni::JString>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JShadowLayerStyle>, jni::alias_ref<JShadowLayerStyle>, jni::alias_ref<jni::JString>, jni::alias_ref<JTextBackgroundStyle>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<JTextAlign>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JString>, jni::alias_ref<jni::JDouble>);
+      using JSignature = JTextStyle(jni::alias_ref<jni::JString>, jni::alias_ref<jni::JString>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JShadowLayerStyle>, jni::alias_ref<JShadowLayerStyle>, jni::alias_ref<jni::JString>, jni::alias_ref<JTextBackgroundStyle>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<JTextAlign>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JString>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -120,7 +126,9 @@ namespace margelo::nitro::nitroimagemarker {
         value.bold.has_value() ? jni::JBoolean::valueOf(value.bold.value()) : nullptr,
         value.rotate.has_value() ? jni::JDouble::valueOf(value.rotate.value()) : nullptr,
         value.strokeColor.has_value() ? jni::make_jstring(value.strokeColor.value()) : nullptr,
-        value.strokeWidth.has_value() ? jni::JDouble::valueOf(value.strokeWidth.value()) : nullptr
+        value.strokeWidth.has_value() ? jni::JDouble::valueOf(value.strokeWidth.value()) : nullptr,
+        value.alpha.has_value() ? jni::JDouble::valueOf(value.alpha.value()) : nullptr,
+        value.maxWidth.has_value() ? jni::JDouble::valueOf(value.maxWidth.value()) : nullptr
       );
     }
   };

@@ -16,6 +16,8 @@ namespace margelo::nitro::nitroimagemarker {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridMethod("markText", &HybridNitroImageMarkerSpec::markText);
       prototype.registerHybridMethod("markImage", &HybridNitroImageMarkerSpec::markImage);
+      prototype.registerHybridMethod("markTextBatch", &HybridNitroImageMarkerSpec::markTextBatch);
+      prototype.registerHybridMethod("markImageBatch", &HybridNitroImageMarkerSpec::markImageBatch);
     });
   }
 

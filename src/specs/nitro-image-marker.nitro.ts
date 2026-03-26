@@ -80,6 +80,8 @@ export interface TextStyle {
   rotate?: number
   strokeColor?: string
   strokeWidth?: number
+  alpha?: number
+  maxWidth?: number
 }
 
 export interface TextOptions {
@@ -104,6 +106,34 @@ export interface WatermarkImageOptions {
   alpha?: number
 }
 
+export interface CropOptions {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export interface FilterOptions {
+  brightness?: number
+  contrast?: number
+  grayscale?: boolean
+}
+
+export interface BlurRegion {
+  x: number
+  y: number
+  width: number
+  height: number
+  blurRadius?: number
+}
+
+export interface TileOptions {
+  tileText?: TextOptions
+  tileImage?: WatermarkImageOptions
+  spacing?: number
+  angle?: number
+}
+
 export interface TextMarkOptions {
   backgroundImage: ImageOptions
   watermarkTexts: TextOptions[]
@@ -111,6 +141,10 @@ export interface TextMarkOptions {
   filename?: string
   saveFormat?: ImageFormat
   maxSize?: number
+  crop?: CropOptions
+  filter?: FilterOptions
+  blurRegions?: BlurRegion[]
+  tile?: TileOptions
 }
 
 export interface ImageMarkOptions {
@@ -121,9 +155,15 @@ export interface ImageMarkOptions {
   filename?: string
   saveFormat?: ImageFormat
   maxSize?: number
+  crop?: CropOptions
+  filter?: FilterOptions
+  blurRegions?: BlurRegion[]
+  tile?: TileOptions
 }
 
 export interface NitroImageMarker extends HybridObject<{ ios: 'swift', android: 'kotlin' }> {
-  markText(options: TextMarkOptions): string
-  markImage(options: ImageMarkOptions): string
+  markText(options: TextMarkOptions): Promise<string>
+  markImage(options: ImageMarkOptions): Promise<string>
+  markTextBatch(optionsArray: TextMarkOptions[]): Promise<string[]>
+  markImageBatch(optionsArray: ImageMarkOptions[]): Promise<string[]>
 }

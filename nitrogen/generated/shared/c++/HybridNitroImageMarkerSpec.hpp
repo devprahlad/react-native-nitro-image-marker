@@ -19,8 +19,10 @@ namespace margelo::nitro::nitroimagemarker { struct TextMarkOptions; }
 namespace margelo::nitro::nitroimagemarker { struct ImageMarkOptions; }
 
 #include <string>
+#include <NitroModules/Promise.hpp>
 #include "TextMarkOptions.hpp"
 #include "ImageMarkOptions.hpp"
+#include <vector>
 
 namespace margelo::nitro::nitroimagemarker {
 
@@ -53,8 +55,10 @@ namespace margelo::nitro::nitroimagemarker {
 
     public:
       // Methods
-      virtual std::string markText(const TextMarkOptions& options) = 0;
-      virtual std::string markImage(const ImageMarkOptions& options) = 0;
+      virtual std::shared_ptr<Promise<std::string>> markText(const TextMarkOptions& options) = 0;
+      virtual std::shared_ptr<Promise<std::string>> markImage(const ImageMarkOptions& options) = 0;
+      virtual std::shared_ptr<Promise<std::vector<std::string>>> markTextBatch(const std::vector<TextMarkOptions>& optionsArray) = 0;
+      virtual std::shared_ptr<Promise<std::vector<std::string>>> markImageBatch(const std::vector<ImageMarkOptions>& optionsArray) = 0;
 
     protected:
       // Hybrid Setup

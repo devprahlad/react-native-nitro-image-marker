@@ -24,7 +24,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JPositionOptions final: public jni::JavaClass<JPositionOptions> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/PositionOptions;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/PositionOptions;";
 
   public:
     /**

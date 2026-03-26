@@ -21,7 +21,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JShadowLayerStyle final: public jni::JavaClass<JShadowLayerStyle> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/ShadowLayerStyle;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/ShadowLayerStyle;";
 
   public:
     /**

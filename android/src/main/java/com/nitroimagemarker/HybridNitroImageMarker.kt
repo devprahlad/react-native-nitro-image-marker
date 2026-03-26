@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
@@ -11,6 +13,12 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.Base64
+import androidx.annotation.Keep
+import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Promise
+import com.margelo.nitro.nitroimagemarker.BlurRegion
+import com.margelo.nitro.nitroimagemarker.CropOptions
+import com.margelo.nitro.nitroimagemarker.FilterOptions
 import com.margelo.nitro.nitroimagemarker.HybridNitroImageMarkerSpec
 import com.margelo.nitro.nitroimagemarker.ImageFormat
 import com.margelo.nitro.nitroimagemarker.ImageMarkOptions
@@ -24,37 +32,97 @@ import com.margelo.nitro.nitroimagemarker.TextAlign
 import com.margelo.nitro.nitroimagemarker.TextMarkOptions
 import com.margelo.nitro.nitroimagemarker.TextOptions
 import com.margelo.nitro.nitroimagemarker.TextStyle
+import com.margelo.nitro.nitroimagemarker.TileOptions
 import com.margelo.nitro.nitroimagemarker.WatermarkImageOptions
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URL
 import java.util.UUID
 import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sqrt
 import kotlin.math.tan
 
+@Keep
+@DoNotStrip
 class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
-    override fun markText(options: TextMarkOptions): String {
-        return render(
-            background = options.backgroundImage,
-            watermarkTexts = options.watermarkTexts,
-            watermarkImages = emptyArray(),
-            quality = options.quality,
-            filename = options.filename,
-            saveFormat = options.saveFormat,
-            maxSize = options.maxSize
-        )
+    override fun markText(options: TextMarkOptions): Promise<String> {
+        return Promise.parallel {
+            render(
+                background = options.backgroundImage,
+                watermarkTexts = options.watermarkTexts,
+                watermarkImages = emptyArray(),
+                quality = options.quality,
+                filename = options.filename,
+                saveFormat = options.saveFormat,
+                maxSize = options.maxSize,
+                crop = options.crop,
+                filter = options.filter,
+                blurRegions = options.blurRegions,
+                tile = options.tile
+            )
+        }
     }
 
-    override fun markImage(options: ImageMarkOptions): String {
-        return render(
-            background = options.backgroundImage,
-            watermarkTexts = options.watermarkTexts ?: emptyArray(),
-            watermarkImages = options.watermarkImages,
-            quality = options.quality,
-            filename = options.filename,
-            saveFormat = options.saveFormat,
-            maxSize = options.maxSize
-        )
+    override fun markImage(options: ImageMarkOptions): Promise<String> {
+        return Promise.parallel {
+            render(
+                background = options.backgroundImage,
+                watermarkTexts = options.watermarkTexts ?: emptyArray(),
+                watermarkImages = options.watermarkImages,
+                quality = options.quality,
+                filename = options.filename,
+                saveFormat = options.saveFormat,
+                maxSize = options.maxSize,
+                crop = options.crop,
+                filter = options.filter,
+                blurRegions = options.blurRegions,
+                tile = options.tile
+            )
+        }
     }
+
+    override fun markTextBatch(optionsArray: Array<TextMarkOptions>): Promise<Array<String>> {
+        return Promise.parallel {
+            optionsArray.map { options ->
+                render(
+                    background = options.backgroundImage,
+                    watermarkTexts = options.watermarkTexts,
+                    watermarkImages = emptyArray(),
+                    quality = options.quality,
+                    filename = options.filename,
+                    saveFormat = options.saveFormat,
+                    maxSize = options.maxSize,
+                    crop = options.crop,
+                    filter = options.filter,
+                    blurRegions = options.blurRegions,
+                    tile = options.tile
+                )
+            }.toTypedArray()
+        }
+    }
+
+    override fun markImageBatch(optionsArray: Array<ImageMarkOptions>): Promise<Array<String>> {
+        return Promise.parallel {
+            optionsArray.map { options ->
+                render(
+                    background = options.backgroundImage,
+                    watermarkTexts = options.watermarkTexts ?: emptyArray(),
+                    watermarkImages = options.watermarkImages,
+                    quality = options.quality,
+                    filename = options.filename,
+                    saveFormat = options.saveFormat,
+                    maxSize = options.maxSize,
+                    crop = options.crop,
+                    filter = options.filter,
+                    blurRegions = options.blurRegions,
+                    tile = options.tile
+                )
+            }.toTypedArray()
+        }
+    }
+
+    // ── Core Render Pipeline ──
 
     private fun render(
         background: ImageOptions,
@@ -63,12 +131,26 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         quality: Double?,
         filename: String?,
         saveFormat: ImageFormat?,
-        maxSize: Double?
+        maxSize: Double?,
+        crop: CropOptions?,
+        filter: FilterOptions?,
+        blurRegions: Array<BlurRegion>?,
+        tile: TileOptions?
     ): String {
         var baseBitmap = loadBitmap(background.image)
         val scale = background.scale?.toFloat() ?: 1f
         if (scale > 0f && scale != 1f) {
             baseBitmap = scaleBitmap(baseBitmap, scale)
+        }
+
+        // Crop
+        if (crop != null) {
+            baseBitmap = cropBitmap(baseBitmap, crop)
+        }
+
+        // Filter
+        if (filter != null) {
+            baseBitmap = applyFilter(baseBitmap, filter)
         }
 
         val outputBitmap = Bitmap.createBitmap(
@@ -83,6 +165,12 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         val rotate = background.rotate?.toFloat() ?: 0f
         drawBitmap(canvas, baseBitmap, 0f, 0f, rotate, paint)
 
+        // Blur regions
+        blurRegions?.forEach { region ->
+            applyBlurRegion(canvas, baseBitmap, region)
+        }
+
+        // Image watermarks
         watermarkImages.forEach { watermark ->
             var bitmap = loadBitmap(watermark.src)
             val wmScale = watermark.scale?.toFloat() ?: 1f
@@ -102,8 +190,14 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
             drawBitmap(canvas, bitmap, position.first, position.second, wmRotate, wmPaint)
         }
 
+        // Text watermarks
         watermarkTexts.forEach { watermark ->
             drawText(canvas, watermark, outputBitmap.width.toFloat(), outputBitmap.height.toFloat())
+        }
+
+        // Tile watermark
+        if (tile != null) {
+            drawTile(canvas, tile, outputBitmap.width.toFloat(), outputBitmap.height.toFloat())
         }
 
         val resized = if (maxSize != null && maxSize > 0) {
@@ -115,6 +209,8 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         return persistBitmap(resized, quality, filename, saveFormat)
     }
 
+    // ── Image Loading ──
+
     private fun loadBitmap(source: String): Bitmap {
         val path = if (source.startsWith("file://")) source.substring(7) else source
         val file = File(path)
@@ -125,6 +221,15 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
 
         decodeBase64(source)?.let { data ->
             return BitmapFactory.decodeByteArray(data, 0, data.size)
+        }
+
+        // URL loading (http/https)
+        if (source.startsWith("http://") || source.startsWith("https://")) {
+            val url = URL(source)
+            val stream = url.openStream()
+            val bitmap = BitmapFactory.decodeStream(stream)
+            stream.close()
+            if (bitmap != null) return bitmap
         }
 
         throw IllegalArgumentException("Unable to load image: $source")
@@ -144,6 +249,157 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
             null
         }
     }
+
+    // ── Crop ──
+
+    private fun cropBitmap(bitmap: Bitmap, crop: CropOptions): Bitmap {
+        val x = crop.x.toInt().coerceIn(0, bitmap.width - 1)
+        val y = crop.y.toInt().coerceIn(0, bitmap.height - 1)
+        val w = crop.width.toInt().coerceAtMost(bitmap.width - x)
+        val h = crop.height.toInt().coerceAtMost(bitmap.height - y)
+        return Bitmap.createBitmap(bitmap, x, y, w, h)
+    }
+
+    // ── Filters ──
+
+    private fun applyFilter(bitmap: Bitmap, filter: FilterOptions): Bitmap {
+        val output = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(output)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        val colorMatrix = ColorMatrix()
+
+        // Grayscale
+        if (filter.grayscale == true) {
+            val grayscale = ColorMatrix()
+            grayscale.setSaturation(0f)
+            colorMatrix.postConcat(grayscale)
+        }
+
+        // Brightness: map -100..100 to -255..255 then to translation
+        filter.brightness?.let { b ->
+            if (b != 0.0) {
+                val value = (b / 100.0 * 255.0).toFloat()
+                val brightnessMatrix = ColorMatrix(floatArrayOf(
+                    1f, 0f, 0f, 0f, value,
+                    0f, 1f, 0f, 0f, value,
+                    0f, 0f, 1f, 0f, value,
+                    0f, 0f, 0f, 1f, 0f
+                ))
+                colorMatrix.postConcat(brightnessMatrix)
+            }
+        }
+
+        // Contrast: map -100..100 to scale factor
+        filter.contrast?.let { c ->
+            if (c != 0.0) {
+                val factor = ((c / 100.0 * 0.75) + 1.0).toFloat()
+                val translate = (-0.5f * factor + 0.5f) * 255f
+                val contrastMatrix = ColorMatrix(floatArrayOf(
+                    factor, 0f, 0f, 0f, translate,
+                    0f, factor, 0f, 0f, translate,
+                    0f, 0f, factor, 0f, translate,
+                    0f, 0f, 0f, 1f, 0f
+                ))
+                colorMatrix.postConcat(contrastMatrix)
+            }
+        }
+
+        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+        canvas.drawBitmap(bitmap, 0f, 0f, paint)
+        return output
+    }
+
+    // ── Blur Region ──
+
+    private fun applyBlurRegion(canvas: Canvas, baseBitmap: Bitmap, region: BlurRegion) {
+        val x = region.x.toInt().coerceIn(0, baseBitmap.width - 1)
+        val y = region.y.toInt().coerceIn(0, baseBitmap.height - 1)
+        val w = region.width.toInt().coerceAtMost(baseBitmap.width - x).coerceAtLeast(1)
+        val h = region.height.toInt().coerceAtMost(baseBitmap.height - y).coerceAtLeast(1)
+        val radius = (region.blurRadius ?: 15.0).toInt().coerceIn(1, 25)
+
+        // Extract region
+        val regionBitmap = Bitmap.createBitmap(baseBitmap, x, y, w, h)
+
+        // Scale-down blur technique (fast, works on all API levels)
+        val scaleFactor = max(1, radius / 2)
+        val smallW = max(1, w / scaleFactor)
+        val smallH = max(1, h / scaleFactor)
+        val small = Bitmap.createScaledBitmap(regionBitmap, smallW, smallH, true)
+        val blurred = Bitmap.createScaledBitmap(small, w, h, true)
+
+        canvas.drawBitmap(blurred, x.toFloat(), y.toFloat(), null)
+    }
+
+    // ── Tile Watermark ──
+
+    private fun drawTile(canvas: Canvas, tile: TileOptions, canvasWidth: Float, canvasHeight: Float) {
+        val spacing = tile.spacing?.toFloat() ?: 100f
+        val angle = tile.angle?.toFloat() ?: -30f
+        val diagonal = sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight)
+        val centerX = canvasWidth / 2f
+        val centerY = canvasHeight / 2f
+        val startX = centerX - diagonal / 2f
+        val startY = centerY - diagonal / 2f
+
+        canvas.save()
+        canvas.rotate(angle, centerX, centerY)
+
+        tile.tileText?.let { tileText ->
+            val style = tileText.style
+            val textSize = style?.fontSize?.toFloat() ?: 20f
+            val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = parseColor(style?.color ?: "#000000")
+                this.textSize = textSize
+                alpha = ((style?.alpha ?: 0.3) * 255).toInt().coerceIn(0, 255)
+            }
+            val typefaceStyle = if (style?.bold == true) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL
+            textPaint.typeface = android.graphics.Typeface.create(style?.fontName, typefaceStyle)
+
+            val text = tileText.text
+            val textWidth = textPaint.measureText(text)
+            val textHeight = textPaint.fontMetrics.let { it.descent - it.ascent }
+            val stepX = textWidth + spacing
+            val stepY = textHeight + spacing
+
+            var y = startY
+            while (y < startY + diagonal) {
+                var x = startX
+                while (x < startX + diagonal) {
+                    canvas.drawText(text, x, y - textPaint.fontMetrics.ascent, textPaint)
+                    x += stepX
+                }
+                y += stepY
+            }
+        }
+
+        tile.tileImage?.let { tileImage ->
+            var bitmap = loadBitmap(tileImage.src)
+            val imgScale = tileImage.scale?.toFloat() ?: 1f
+            if (imgScale > 0f && imgScale != 1f) {
+                bitmap = scaleBitmap(bitmap, imgScale)
+            }
+            val imgAlpha = ((tileImage.alpha ?: 0.3) * 255).toInt().coerceIn(0, 255)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { alpha = imgAlpha }
+            val stepX = bitmap.width + spacing
+            val stepY = bitmap.height + spacing
+
+            var y = startY
+            while (y < startY + diagonal) {
+                var x = startX
+                while (x < startX + diagonal) {
+                    canvas.drawBitmap(bitmap, x, y, paint)
+                    x += stepX
+                }
+                y += stepY
+            }
+        }
+
+        canvas.restore()
+    }
+
+    // ── Drawing ──
 
     private fun drawBitmap(
         canvas: Canvas,
@@ -168,8 +424,10 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
     private fun drawText(canvas: Canvas, watermark: TextOptions, canvasWidth: Float, canvasHeight: Float) {
         val style = watermark.style
         val textSize = style?.fontSize?.toFloat() ?: 20f
+        val textAlpha = ((style?.alpha ?: 1.0) * 255).toInt().coerceIn(0, 255)
         val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             color = parseColor(style?.color ?: "#000000")
+            alpha = textAlpha
             this.textSize = textSize
             isUnderlineText = style?.underline == true
             isStrikeThruText = style?.strikeThrough == true
@@ -193,7 +451,12 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         textPaint.typeface = android.graphics.Typeface.create(style?.fontName, typefaceStyle)
 
         val text = watermark.text
-        val textWidth = computeTextWidth(textPaint, text)
+        val maxWidth = style?.maxWidth?.toFloat()
+        val textWidth = if (maxWidth != null && maxWidth > 0) {
+            min(computeTextWidth(textPaint, text), maxWidth)
+        } else {
+            computeTextWidth(textPaint, text)
+        }
         val layout = buildLayout(text, textPaint, textWidth, style)
         val textHeight = layout.height.toFloat()
 
@@ -241,9 +504,9 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
 
         canvas.save()
         if (rotate != 0f) {
-            val centerX = textLeft + textWidth / 2f
-            val centerY = textTop + textHeight / 2f
-            canvas.rotate(rotate, centerX, centerY)
+            val cx = textLeft + textWidth / 2f
+            val cy = textTop + textHeight / 2f
+            canvas.rotate(rotate, cx, cy)
         }
 
         val strokeWidth = style?.strokeWidth?.toFloat() ?: 0f
@@ -287,6 +550,8 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         return text.split("\n").maxOfOrNull { paint.measureText(it) } ?: 0f
     }
 
+    // ── Position Resolution ──
+
     private fun resolvePosition(
         position: PositionOptions?,
         itemWidth: Float,
@@ -325,8 +590,10 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         }
     }
 
-    private fun resolvePadding(style: TextBackgroundStyle?, textWidth: Float, textHeight: Float): Padding {
-        var padding = Padding()
+    // ── Padding & Corner Radius ──
+
+    private fun resolvePadding(style: TextBackgroundStyle?, textWidth: Float, textHeight: Float): PaddingValues {
+        var padding = PaddingValues()
         style?.padding?.let { padding = padding.withAll(resolvePaddingValue(it, textWidth, textHeight)) }
         style?.paddingHorizontal?.let {
             val value = resolvePaddingValue(it, textWidth, textHeight)
@@ -380,6 +647,8 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         return path
     }
 
+    // ── Shadow & Color ──
+
     private fun applyShadow(paint: TextPaint, shadow: ShadowLayerStyle) {
         paint.setShadowLayer(
             shadow.shadowRadius.toFloat(),
@@ -404,6 +673,8 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
             Color.BLACK
         }
     }
+
+    // ── Resize & Persist ──
 
     private fun scaleBitmap(bitmap: Bitmap, scale: Float): Bitmap {
         val width = (bitmap.width * scale).toInt().coerceAtLeast(1)
@@ -432,8 +703,8 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
         }
 
         val name = filename ?: UUID.randomUUID().toString()
-        val extension = if (format == ImageFormat.JPG) "jpg" else "png"
-        val outputFile = File.createTempFile(name, ".$extension")
+        val ext = if (format == ImageFormat.JPG) "jpg" else "png"
+        val outputFile = File(System.getProperty("java.io.tmpdir"), "$name.$ext")
         val stream = FileOutputStream(outputFile)
         val compressionQuality = normalizeQuality(quality, if (format == ImageFormat.JPG) 100 else 100)
         val compressFormat = if (format == ImageFormat.JPG) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG
@@ -450,13 +721,13 @@ class HybridNitroImageMarker : HybridNitroImageMarkerSpec() {
     }
 }
 
-private data class Padding(
+private data class PaddingValues(
     var left: Float = 0f,
     var right: Float = 0f,
     var top: Float = 0f,
     var bottom: Float = 0f
 ) {
-    fun withAll(value: Float) = Padding(value, value, value, value)
+    fun withAll(value: Float) = PaddingValues(value, value, value, value)
 }
 
 private data class CornerRadii(

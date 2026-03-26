@@ -36,12 +36,21 @@ namespace margelo::nitro::nitroimagemarker { struct RadiusValue; }
 namespace margelo::nitro::nitroimagemarker { enum class TextAlign; }
 // Forward declaration of `ImageFormat` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { enum class ImageFormat; }
-// Forward declaration of `ImageMarkOptions` to properly resolve imports.
-namespace margelo::nitro::nitroimagemarker { struct ImageMarkOptions; }
+// Forward declaration of `CropOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct CropOptions; }
+// Forward declaration of `FilterOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct FilterOptions; }
+// Forward declaration of `BlurRegion` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct BlurRegion; }
+// Forward declaration of `TileOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct TileOptions; }
 // Forward declaration of `WatermarkImageOptions` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
+// Forward declaration of `ImageMarkOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct ImageMarkOptions; }
 
 #include <string>
+#include <NitroModules/Promise.hpp>
 #include "TextMarkOptions.hpp"
 #include "ImageOptions.hpp"
 #include <optional>
@@ -56,8 +65,12 @@ namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
 #include "RadiusValue.hpp"
 #include "TextAlign.hpp"
 #include "ImageFormat.hpp"
-#include "ImageMarkOptions.hpp"
+#include "CropOptions.hpp"
+#include "FilterOptions.hpp"
+#include "BlurRegion.hpp"
+#include "TileOptions.hpp"
 #include "WatermarkImageOptions.hpp"
+#include "ImageMarkOptions.hpp"
 
 #include "NitroImageMarker-Swift-Cxx-Umbrella.hpp"
 
@@ -109,7 +122,7 @@ namespace margelo::nitro::nitroimagemarker {
 
   public:
     // Methods
-    inline std::string markText(const TextMarkOptions& options) override {
+    inline std::shared_ptr<Promise<std::string>> markText(const TextMarkOptions& options) override {
       auto __result = _swiftPart.markText(std::forward<decltype(options)>(options));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
@@ -117,8 +130,24 @@ namespace margelo::nitro::nitroimagemarker {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::string markImage(const ImageMarkOptions& options) override {
+    inline std::shared_ptr<Promise<std::string>> markImage(const ImageMarkOptions& options) override {
       auto __result = _swiftPart.markImage(std::forward<decltype(options)>(options));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<std::vector<std::string>>> markTextBatch(const std::vector<TextMarkOptions>& optionsArray) override {
+      auto __result = _swiftPart.markTextBatch(optionsArray);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<std::vector<std::string>>> markImageBatch(const std::vector<ImageMarkOptions>& optionsArray) override {
+      auto __result = _swiftPart.markImageBatch(optionsArray);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

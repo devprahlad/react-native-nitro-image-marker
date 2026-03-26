@@ -26,7 +26,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JWatermarkImageOptions final: public jni::JavaClass<JWatermarkImageOptions> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/WatermarkImageOptions;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/WatermarkImageOptions;";
 
   public:
     /**

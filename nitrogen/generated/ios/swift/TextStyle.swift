@@ -5,7 +5,6 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import Foundation
 import NitroModules
 
 /**
@@ -19,7 +18,7 @@ public extension TextStyle {
   /**
    * Create a new instance of `TextStyle`.
    */
-  init(color: String?, fontName: String?, fontSize: Double?, shadowStyle: ShadowLayerStyle?, shadow: ShadowLayerStyle?, backgroundColor: String?, textBackgroundStyle: TextBackgroundStyle?, underline: Bool?, skewX: Double?, strikeThrough: Bool?, textAlign: TextAlign?, italic: Bool?, bold: Bool?, rotate: Double?, strokeColor: String?, strokeWidth: Double?) {
+  init(color: String?, fontName: String?, fontSize: Double?, shadowStyle: ShadowLayerStyle?, shadow: ShadowLayerStyle?, backgroundColor: String?, textBackgroundStyle: TextBackgroundStyle?, underline: Bool?, skewX: Double?, strikeThrough: Bool?, textAlign: TextAlign?, italic: Bool?, bold: Bool?, rotate: Double?, strokeColor: String?, strokeWidth: Double?, alpha: Double?, maxWidth: Double?) {
     self.init({ () -> bridge.std__optional_std__string_ in
       if let __unwrappedValue = color {
         return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
@@ -116,6 +115,18 @@ public extension TextStyle {
       } else {
         return .init()
       }
+    }(), { () -> bridge.std__optional_double_ in
+      if let __unwrappedValue = alpha {
+        return bridge.create_std__optional_double_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_double_ in
+      if let __unwrappedValue = maxWidth {
+        return bridge.create_std__optional_double_(__unwrappedValue)
+      } else {
+        return .init()
+      }
     }())
   }
 
@@ -145,7 +156,14 @@ public extension TextStyle {
   
   @inline(__always)
   var fontSize: Double? {
-    return self.__fontSize.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__fontSize) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__fontSize)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
@@ -189,7 +207,14 @@ public extension TextStyle {
   
   @inline(__always)
   var skewX: Double? {
-    return self.__skewX.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__skewX) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__skewX)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
@@ -235,7 +260,14 @@ public extension TextStyle {
   
   @inline(__always)
   var rotate: Double? {
-    return self.__rotate.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__rotate) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__rotate)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
@@ -252,6 +284,37 @@ public extension TextStyle {
   
   @inline(__always)
   var strokeWidth: Double? {
-    return self.__strokeWidth.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__strokeWidth) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__strokeWidth)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var alpha: Double? {
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__alpha) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__alpha)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var maxWidth: Double? {
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__maxWidth) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__maxWidth)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
 }

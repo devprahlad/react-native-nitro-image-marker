@@ -64,10 +64,12 @@ namespace margelo::nitro::nitroimagemarker {
     std::optional<double> rotate     SWIFT_PRIVATE;
     std::optional<std::string> strokeColor     SWIFT_PRIVATE;
     std::optional<double> strokeWidth     SWIFT_PRIVATE;
+    std::optional<double> alpha     SWIFT_PRIVATE;
+    std::optional<double> maxWidth     SWIFT_PRIVATE;
 
   public:
     TextStyle() = default;
-    explicit TextStyle(std::optional<std::string> color, std::optional<std::string> fontName, std::optional<double> fontSize, std::optional<ShadowLayerStyle> shadowStyle, std::optional<ShadowLayerStyle> shadow, std::optional<std::string> backgroundColor, std::optional<TextBackgroundStyle> textBackgroundStyle, std::optional<bool> underline, std::optional<double> skewX, std::optional<bool> strikeThrough, std::optional<TextAlign> textAlign, std::optional<bool> italic, std::optional<bool> bold, std::optional<double> rotate, std::optional<std::string> strokeColor, std::optional<double> strokeWidth): color(color), fontName(fontName), fontSize(fontSize), shadowStyle(shadowStyle), shadow(shadow), backgroundColor(backgroundColor), textBackgroundStyle(textBackgroundStyle), underline(underline), skewX(skewX), strikeThrough(strikeThrough), textAlign(textAlign), italic(italic), bold(bold), rotate(rotate), strokeColor(strokeColor), strokeWidth(strokeWidth) {}
+    explicit TextStyle(std::optional<std::string> color, std::optional<std::string> fontName, std::optional<double> fontSize, std::optional<ShadowLayerStyle> shadowStyle, std::optional<ShadowLayerStyle> shadow, std::optional<std::string> backgroundColor, std::optional<TextBackgroundStyle> textBackgroundStyle, std::optional<bool> underline, std::optional<double> skewX, std::optional<bool> strikeThrough, std::optional<TextAlign> textAlign, std::optional<bool> italic, std::optional<bool> bold, std::optional<double> rotate, std::optional<std::string> strokeColor, std::optional<double> strokeWidth, std::optional<double> alpha, std::optional<double> maxWidth): color(color), fontName(fontName), fontSize(fontSize), shadowStyle(shadowStyle), shadow(shadow), backgroundColor(backgroundColor), textBackgroundStyle(textBackgroundStyle), underline(underline), skewX(skewX), strikeThrough(strikeThrough), textAlign(textAlign), italic(italic), bold(bold), rotate(rotate), strokeColor(strokeColor), strokeWidth(strokeWidth), alpha(alpha), maxWidth(maxWidth) {}
 
   public:
     friend bool operator==(const TextStyle& lhs, const TextStyle& rhs) = default;
@@ -98,7 +100,9 @@ namespace margelo::nitro {
         JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "bold"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "rotate"))),
         JSIConverter<std::optional<std::string>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "strokeColor"))),
-        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "strokeWidth")))
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "strokeWidth"))),
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "alpha"))),
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxWidth")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::nitroimagemarker::TextStyle& arg) {
@@ -119,6 +123,8 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "rotate"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.rotate));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "strokeColor"), JSIConverter<std::optional<std::string>>::toJSI(runtime, arg.strokeColor));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "strokeWidth"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.strokeWidth));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "alpha"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.alpha));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "maxWidth"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.maxWidth));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -145,6 +151,8 @@ namespace margelo::nitro {
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "rotate")))) return false;
       if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "strokeColor")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "strokeWidth")))) return false;
+      if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "alpha")))) return false;
+      if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxWidth")))) return false;
       return true;
     }
   };

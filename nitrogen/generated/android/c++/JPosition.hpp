@@ -19,7 +19,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JPosition final: public jni::JavaClass<JPosition> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/Position;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/Position;";
 
   public:
     /**

@@ -22,7 +22,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JImageOptions final: public jni::JavaClass<JImageOptions> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/ImageOptions;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/ImageOptions;";
 
   public:
     /**

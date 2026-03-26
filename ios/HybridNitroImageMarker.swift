@@ -7,32 +7,93 @@
 
 import Foundation
 import UIKit
+import NitroModules
 
 class HybridNitroImageMarker: HybridNitroImageMarkerSpec {
-    func markText(options: TextMarkOptions) throws -> String {
-        return try render(
-            background: options.backgroundImage,
-            watermarkTexts: options.watermarkTexts,
-            watermarkImages: [],
-            quality: options.quality,
-            filename: options.filename,
-            saveFormat: options.saveFormat,
-            maxSize: options.maxSize
-        )
+    func markText(options: TextMarkOptions) throws -> Promise<String> {
+        return Promise.async {
+            return try self.render(
+                background: options.backgroundImage,
+                watermarkTexts: options.watermarkTexts,
+                watermarkImages: [],
+                quality: options.quality,
+                filename: options.filename,
+                saveFormat: options.saveFormat,
+                maxSize: options.maxSize,
+                crop: options.crop,
+                filter: options.filter,
+                blurRegions: options.blurRegions,
+                tile: options.tile
+            )
+        }
     }
 
-    func markImage(options: ImageMarkOptions) throws -> String {
-        return try render(
-            background: options.backgroundImage,
-            watermarkTexts: options.watermarkTexts ?? [],
-            watermarkImages: options.watermarkImages,
-            quality: options.quality,
-            filename: options.filename,
-            saveFormat: options.saveFormat,
-            maxSize: options.maxSize
-        )
+    func markImage(options: ImageMarkOptions) throws -> Promise<String> {
+        return Promise.async {
+            return try self.render(
+                background: options.backgroundImage,
+                watermarkTexts: options.watermarkTexts ?? [],
+                watermarkImages: options.watermarkImages,
+                quality: options.quality,
+                filename: options.filename,
+                saveFormat: options.saveFormat,
+                maxSize: options.maxSize,
+                crop: options.crop,
+                filter: options.filter,
+                blurRegions: options.blurRegions,
+                tile: options.tile
+            )
+        }
+    }
+
+    func markTextBatch(optionsArray: [TextMarkOptions]) throws -> Promise<[String]> {
+        return Promise.async {
+            var results: [String] = []
+            for options in optionsArray {
+                let result = try self.render(
+                    background: options.backgroundImage,
+                    watermarkTexts: options.watermarkTexts,
+                    watermarkImages: [],
+                    quality: options.quality,
+                    filename: options.filename,
+                    saveFormat: options.saveFormat,
+                    maxSize: options.maxSize,
+                    crop: options.crop,
+                    filter: options.filter,
+                    blurRegions: options.blurRegions,
+                    tile: options.tile
+                )
+                results.append(result)
+            }
+            return results
+        }
+    }
+
+    func markImageBatch(optionsArray: [ImageMarkOptions]) throws -> Promise<[String]> {
+        return Promise.async {
+            var results: [String] = []
+            for options in optionsArray {
+                let result = try self.render(
+                    background: options.backgroundImage,
+                    watermarkTexts: options.watermarkTexts ?? [],
+                    watermarkImages: options.watermarkImages,
+                    quality: options.quality,
+                    filename: options.filename,
+                    saveFormat: options.saveFormat,
+                    maxSize: options.maxSize,
+                    crop: options.crop,
+                    filter: options.filter,
+                    blurRegions: options.blurRegions,
+                    tile: options.tile
+                )
+                results.append(result)
+            }
+            return results
+        }
     }
 }
+
+// MARK: - Core Render Pipeline
 
 private extension HybridNitroImageMarker {
     func render(
@@ -42,49 +103,90 @@ private extension HybridNitroImageMarker {
         quality: Double?,
         filename: String?,
         saveFormat: ImageFormat?,
-        maxSize: Double?
+        maxSize: Double?,
+        crop: CropOptions?,
+        filter: FilterOptions?,
+        blurRegions: [BlurRegion]?,
+        tile: TileOptions?
     ) throws -> String {
         var baseImage = try loadImage(source: background.image)
         if let scale = background.scale, scale > 0 {
             baseImage = resizeImage(baseImage, scale: CGFloat(scale))
         }
+
+        // Crop
+        if let crop = crop {
+            baseImage = try cropImage(baseImage, options: crop)
+        }
+
+        // Filter
+        if let filter = filter {
+            baseImage = applyFilter(baseImage, options: filter)
+        }
+
         let bgRotate = CGFloat(background.rotate ?? 0)
         let bgAlpha = CGFloat(background.alpha ?? 1)
 
         let canvasSize = baseImage.size
-        UIGraphicsBeginImageContextWithOptions(canvasSize, false, baseImage.scale)
-        guard let context = UIGraphicsGetCurrentContext() else {
-            throw NSError(domain: "NitroImageMarker", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create graphics context."])
-        }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = baseImage.scale
+        let renderer = UIGraphicsImageRenderer(size: canvasSize, format: format)
 
-        context.saveGState()
-        context.setAlpha(bgAlpha)
-        drawImage(baseImage, in: CGRect(origin: .zero, size: canvasSize), rotate: bgRotate, context: context)
-        context.restoreGState()
+        var renderError: Error?
+        var output = renderer.image { rendererContext in
+            let context = rendererContext.cgContext
 
-        for imageWatermark in watermarkImages {
-            var image = try loadImage(source: imageWatermark.src)
-            if let scale = imageWatermark.scale, scale > 0 {
-                image = resizeImage(image, scale: CGFloat(scale))
-            }
-            let rotate = CGFloat(imageWatermark.rotate ?? 0)
-            let alpha = CGFloat(imageWatermark.alpha ?? 1)
-            let pos = resolvePosition(imageWatermark.position, itemSize: image.size, canvasSize: canvasSize)
             context.saveGState()
-            context.setAlpha(alpha)
-            drawImage(image, in: CGRect(origin: pos, size: image.size), rotate: rotate, context: context)
+            context.setAlpha(bgAlpha)
+            drawImage(baseImage, in: CGRect(origin: .zero, size: canvasSize), rotate: bgRotate, context: context)
             context.restoreGState()
+
+            // Blur regions
+            if let blurRegions = blurRegions {
+                for region in blurRegions {
+                    applyBlurRegion(region, canvasSize: canvasSize, baseImage: baseImage, context: context)
+                }
+            }
+
+            // Image watermarks
+            for imageWatermark in watermarkImages {
+                do {
+                    var image = try loadImage(source: imageWatermark.src)
+                    if let scale = imageWatermark.scale, scale > 0 {
+                        image = resizeImage(image, scale: CGFloat(scale))
+                    }
+                    let rotate = CGFloat(imageWatermark.rotate ?? 0)
+                    let alpha = CGFloat(imageWatermark.alpha ?? 1)
+                    let pos = resolvePosition(imageWatermark.position, itemSize: image.size, canvasSize: canvasSize)
+                    context.saveGState()
+                    context.setAlpha(alpha)
+                    drawImage(image, in: CGRect(origin: pos, size: image.size), rotate: rotate, context: context)
+                    context.restoreGState()
+                } catch {
+                    renderError = error
+                    return
+                }
+            }
+
+            // Text watermarks
+            for textWatermark in watermarkTexts {
+                drawText(textWatermark, in: canvasSize, context: context)
+            }
+
+            // Tile watermark
+            if let tile = tile {
+                do {
+                    try self.drawTile(tile, canvasSize: canvasSize, context: context)
+                } catch {
+                    renderError = error
+                    return
+                }
+            }
         }
 
-        for textWatermark in watermarkTexts {
-            drawText(textWatermark, in: canvasSize, context: context)
+        if let renderError = renderError {
+            throw renderError
         }
-
-        guard var output = UIGraphicsGetImageFromCurrentImageContext() else {
-            UIGraphicsEndImageContext()
-            throw NSError(domain: "NitroImageMarker", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to read output image."])
-        }
-        UIGraphicsEndImageContext()
 
         if let maxSize = maxSize, maxSize > 0 {
             output = resizeImage(output, maxSize: CGFloat(maxSize))
@@ -92,7 +194,11 @@ private extension HybridNitroImageMarker {
 
         return try persistImage(output, quality: quality, filename: filename, saveFormat: saveFormat)
     }
+}
 
+// MARK: - Image Loading
+
+private extension HybridNitroImageMarker {
     func loadImage(source: String) throws -> UIImage {
         let path = source.hasPrefix("file://") ? String(source.dropFirst(7)) : source
         if FileManager.default.fileExists(atPath: path), let image = UIImage(contentsOfFile: path) {
@@ -101,6 +207,13 @@ private extension HybridNitroImageMarker {
 
         if let data = decodeBase64(source), let image = UIImage(data: data) {
             return image
+        }
+
+        // URL loading (http/https)
+        if source.hasPrefix("http://") || source.hasPrefix("https://") {
+            if let url = URL(string: source), let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                return image
+            }
         }
 
         throw NSError(domain: "NitroImageMarker", code: 3, userInfo: [NSLocalizedDescriptionKey: "Unable to load image: \(source)"])
@@ -114,7 +227,190 @@ private extension HybridNitroImageMarker {
         }
         return Data(base64Encoded: source)
     }
+}
 
+// MARK: - Crop
+
+private extension HybridNitroImageMarker {
+    func cropImage(_ image: UIImage, options: CropOptions) throws -> UIImage {
+        let scale = image.scale
+        let cropRect = CGRect(
+            x: CGFloat(options.x) * scale,
+            y: CGFloat(options.y) * scale,
+            width: CGFloat(options.width) * scale,
+            height: CGFloat(options.height) * scale
+        )
+        guard let cgImage = image.cgImage?.cropping(to: cropRect) else {
+            throw NSError(domain: "NitroImageMarker", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to crop image."])
+        }
+        return UIImage(cgImage: cgImage, scale: scale, orientation: image.imageOrientation)
+    }
+}
+
+// MARK: - Filters
+
+private extension HybridNitroImageMarker {
+    func applyFilter(_ image: UIImage, options: FilterOptions) -> UIImage {
+        guard let ciImage = CIImage(image: image) else { return image }
+        var filtered = ciImage
+
+        // Grayscale
+        if options.grayscale == true {
+            if let grayscaleFilter = CIFilter(name: "CIColorMonochrome") {
+                grayscaleFilter.setValue(filtered, forKey: kCIInputImageKey)
+                grayscaleFilter.setValue(CIColor(red: 0.7, green: 0.7, blue: 0.7), forKey: "inputColor")
+                grayscaleFilter.setValue(1.0, forKey: "inputIntensity")
+                if let output = grayscaleFilter.outputImage { filtered = output }
+            }
+        }
+
+        // Brightness
+        if let brightness = options.brightness, brightness != 0 {
+            if let brightnessFilter = CIFilter(name: "CIColorControls") {
+                brightnessFilter.setValue(filtered, forKey: kCIInputImageKey)
+                brightnessFilter.setValue(brightness / 100.0, forKey: kCIInputBrightnessKey)
+                if let output = brightnessFilter.outputImage { filtered = output }
+            }
+        }
+
+        // Contrast
+        if let contrast = options.contrast, contrast != 0 {
+            if let contrastFilter = CIFilter(name: "CIColorControls") {
+                contrastFilter.setValue(filtered, forKey: kCIInputImageKey)
+                // Map -100..100 to 0.25..1.75
+                let contrastValue = 1.0 + (contrast / 100.0) * 0.75
+                contrastFilter.setValue(contrastValue, forKey: kCIInputContrastKey)
+                if let output = contrastFilter.outputImage { filtered = output }
+            }
+        }
+
+        let context = CIContext()
+        guard let cgImage = context.createCGImage(filtered, from: filtered.extent) else { return image }
+        return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+    }
+}
+
+// MARK: - Blur Region
+
+private extension HybridNitroImageMarker {
+    func applyBlurRegion(_ region: BlurRegion, canvasSize: CGSize, baseImage: UIImage, context: CGContext) {
+        let radius = CGFloat(region.blurRadius ?? 15)
+        let rect = CGRect(
+            x: CGFloat(region.x),
+            y: CGFloat(region.y),
+            width: CGFloat(region.width),
+            height: CGFloat(region.height)
+        )
+
+        guard let cgImage = baseImage.cgImage else { return }
+        let scale = baseImage.scale
+        let scaledRect = CGRect(
+            x: rect.origin.x * scale,
+            y: rect.origin.y * scale,
+            width: rect.size.width * scale,
+            height: rect.size.height * scale
+        )
+        guard let cropped = cgImage.cropping(to: scaledRect) else { return }
+
+        let ciImage = CIImage(cgImage: cropped)
+        let blurFilter = CIFilter(name: "CIGaussianBlur")
+        blurFilter?.setValue(ciImage, forKey: kCIInputImageKey)
+        blurFilter?.setValue(radius, forKey: kCIInputRadiusKey)
+
+        let ciContext = CIContext()
+        guard let blurredCI = blurFilter?.outputImage,
+              let blurredCG = ciContext.createCGImage(blurredCI, from: ciImage.extent) else { return }
+
+        let blurredImage = UIImage(cgImage: blurredCG, scale: scale, orientation: baseImage.imageOrientation)
+        context.saveGState()
+        blurredImage.draw(in: rect)
+        context.restoreGState()
+    }
+}
+
+// MARK: - Tile Watermark
+
+private extension HybridNitroImageMarker {
+    func drawTile(_ tile: TileOptions, canvasSize: CGSize, context: CGContext) throws {
+        let spacing = CGFloat(tile.spacing ?? 100)
+        let angle = CGFloat(tile.angle ?? -30)
+        let angleRad = degreesToRadians(angle)
+
+        context.saveGState()
+        let centerX = canvasSize.width / 2
+        let centerY = canvasSize.height / 2
+        context.translateBy(x: centerX, y: centerY)
+        context.rotate(by: angleRad)
+        context.translateBy(x: -centerX, y: -centerY)
+
+        // Calculate extended bounds to cover rotated area
+        let diagonal = sqrt(canvasSize.width * canvasSize.width + canvasSize.height * canvasSize.height)
+        let startX = centerX - diagonal / 2
+        let startY = centerY - diagonal / 2
+
+        if let tileText = tile.tileText {
+            let style = tileText.style
+            let fontSize = CGFloat(style?.fontSize ?? 20)
+            var font = UIFont.systemFont(ofSize: fontSize)
+            if let fontName = style?.fontName, let customFont = UIFont(name: fontName, size: fontSize) {
+                font = customFont
+            }
+            if style?.bold == true {
+                if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
+                    font = UIFont(descriptor: descriptor, size: fontSize)
+                }
+            }
+
+            let color = parseColor(style?.color ?? "#000000")
+            let alpha = CGFloat(style?.alpha ?? 0.3)
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .foregroundColor: color.withAlphaComponent(alpha),
+            ]
+
+            let textSize = (tileText.text as NSString).size(withAttributes: attributes)
+            let stepX = textSize.width + spacing
+            let stepY = textSize.height + spacing
+
+            var y = startY
+            while y < startY + diagonal {
+                var x = startX
+                while x < startX + diagonal {
+                    (tileText.text as NSString).draw(at: CGPoint(x: x, y: y), withAttributes: attributes)
+                    x += stepX
+                }
+                y += stepY
+            }
+        }
+
+        if let tileImage = tile.tileImage {
+            var image = try loadImage(source: tileImage.src)
+            if let scale = tileImage.scale, scale > 0 {
+                image = resizeImage(image, scale: CGFloat(scale))
+            }
+            let alpha = CGFloat(tileImage.alpha ?? 0.3)
+            let stepX = image.size.width + spacing
+            let stepY = image.size.height + spacing
+
+            context.setAlpha(alpha)
+            var y = startY
+            while y < startY + diagonal {
+                var x = startX
+                while x < startX + diagonal {
+                    image.draw(at: CGPoint(x: x, y: y))
+                    x += stepX
+                }
+                y += stepY
+            }
+        }
+
+        context.restoreGState()
+    }
+}
+
+// MARK: - Drawing
+
+private extension HybridNitroImageMarker {
     func drawImage(_ image: UIImage, in rect: CGRect, rotate: CGFloat, context: CGContext) {
         if rotate == 0 {
             image.draw(in: rect)
@@ -157,6 +453,7 @@ private extension HybridNitroImageMarker {
         }
 
         let color = parseColor(style?.color ?? "#000000")
+        let textAlpha = CGFloat(style?.alpha ?? 1)
         let shadow = resolveShadow(style)
         let obliqueness = style?.skewX.map { CGFloat(tan(degreesToRadians(CGFloat($0)))) }
         let strokeWidth = CGFloat(style?.strokeWidth ?? 0)
@@ -164,7 +461,7 @@ private extension HybridNitroImageMarker {
 
         var attributes: [NSAttributedString.Key: Any] = [
             .font: font,
-            .foregroundColor: color,
+            .foregroundColor: color.withAlphaComponent(textAlpha),
             .paragraphStyle: paragraph
         ]
         if let shadow = shadow { attributes[.shadow] = shadow }
@@ -176,9 +473,11 @@ private extension HybridNitroImageMarker {
             attributes[.strokeWidth] = -strokeWidth
         }
 
+        // Calculate text bounds with maxWidth
+        let maxWidth = style?.maxWidth.map { CGFloat($0) } ?? 100000
         let attributed = NSAttributedString(string: watermark.text, attributes: attributes)
         let textBounds = attributed.boundingRect(
-            with: CGSize(width: 100000, height: 100000),
+            with: CGSize(width: maxWidth, height: 100000),
             options: [.usesLineFragmentOrigin, .usesFontLeading],
             context: nil
         ).integral
@@ -216,7 +515,7 @@ private extension HybridNitroImageMarker {
             context.restoreGState()
         }
 
-        var textRect = CGRect(
+        let textRect = CGRect(
             x: backgroundRect.origin.x + padding.left,
             y: backgroundRect.origin.y + padding.top,
             width: textBounds.width,
@@ -235,7 +534,11 @@ private extension HybridNitroImageMarker {
             attributed.draw(in: textRect)
         }
     }
+}
 
+// MARK: - Position Resolution
+
+private extension HybridNitroImageMarker {
     func resolvePosition(_ position: PositionOptions?, itemSize: CGSize, canvasSize: CGSize) -> CGPoint {
         let x: CGFloat
         let y: CGFloat
@@ -285,7 +588,11 @@ private extension HybridNitroImageMarker {
         }
         return CGFloat(Double(value) ?? 0)
     }
+}
 
+// MARK: - Padding & Corner Radius
+
+private extension HybridNitroImageMarker {
     func resolvePadding(_ style: TextBackgroundStyle?, textSize: CGSize) -> Padding {
         var padding = Padding()
         let defaultPadding = style?.padding
@@ -358,7 +665,11 @@ private extension HybridNitroImageMarker {
         path.close()
         return path
     }
+}
 
+// MARK: - Shadow & Color
+
+private extension HybridNitroImageMarker {
     func resolveShadow(_ style: TextStyle?) -> NSShadow? {
         let shadowStyle = style?.shadowStyle ?? style?.shadow
         guard let shadowStyle = shadowStyle else { return nil }
@@ -395,14 +706,19 @@ private extension HybridNitroImageMarker {
         }
         return UIColor.black
     }
+}
 
+// MARK: - Resize & Persist
+
+private extension HybridNitroImageMarker {
     func resizeImage(_ image: UIImage, scale: CGFloat) -> UIImage {
         let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-        UIGraphicsBeginImageContextWithOptions(newSize, false, image.scale)
-        image.draw(in: CGRect(origin: .zero, size: newSize))
-        let scaled = UIGraphicsGetImageFromCurrentImageContext() ?? image
-        UIGraphicsEndImageContext()
-        return scaled
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
     }
 
     func resizeImage(_ image: UIImage, maxSize: CGFloat) -> UIImage {
@@ -451,6 +767,8 @@ private extension HybridNitroImageMarker {
         return degrees * CGFloat.pi / 180
     }
 }
+
+// MARK: - Support Types
 
 private struct Padding {
     var left: CGFloat = 0

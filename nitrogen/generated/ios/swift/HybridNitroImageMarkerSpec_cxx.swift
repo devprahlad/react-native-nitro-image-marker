@@ -5,7 +5,6 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import Foundation
 import NitroModules
 
 /**
@@ -126,26 +125,90 @@ open class HybridNitroImageMarkerSpec_cxx {
 
   // Methods
   @inline(__always)
-  public final func markText(options: TextMarkOptions) -> bridge.Result_std__string_ {
+  public final func markText(options: TextMarkOptions) -> bridge.Result_std__shared_ptr_Promise_std__string___ {
     do {
       let __result = try self.__implementation.markText(options: options)
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__string__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__string__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__string__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve(std.string(__result)) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__exceptionPtr)
     }
   }
   
   @inline(__always)
-  public final func markImage(options: ImageMarkOptions) -> bridge.Result_std__string_ {
+  public final func markImage(options: ImageMarkOptions) -> bridge.Result_std__shared_ptr_Promise_std__string___ {
     do {
       let __result = try self.__implementation.markImage(options: options)
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__string__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__string__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__string__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve(std.string(__result)) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func markTextBatch(optionsArray: bridge.std__vector_TextMarkOptions_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__string____ {
+    do {
+      let __result = try self.__implementation.markTextBatch(optionsArray: optionsArray.map({ __item in __item }))
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__vector_std__string___ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__vector_std__string___()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__vector_std__string___(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__vector_std__string_ in
+              var __vector = bridge.create_std__vector_std__string_(__result.count)
+              for __item in __result {
+                __vector.push_back(std.string(__item))
+              }
+              return __vector
+            }()) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__string____(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__string____(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func markImageBatch(optionsArray: bridge.std__vector_ImageMarkOptions_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__string____ {
+    do {
+      let __result = try self.__implementation.markImageBatch(optionsArray: optionsArray.map({ __item in __item }))
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__vector_std__string___ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__vector_std__string___()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__vector_std__string___(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__vector_std__string_ in
+              var __vector = bridge.create_std__vector_std__string_(__result.count)
+              for __item in __result {
+                __vector.push_back(std.string(__item))
+              }
+              return __vector
+            }()) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__string____(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__string____(__exceptionPtr)
     }
   }
 }

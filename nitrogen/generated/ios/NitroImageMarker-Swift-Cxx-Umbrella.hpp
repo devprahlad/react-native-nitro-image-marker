@@ -8,6 +8,12 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `BlurRegion` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct BlurRegion; }
+// Forward declaration of `CropOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct CropOptions; }
+// Forward declaration of `FilterOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct FilterOptions; }
 // Forward declaration of `HybridNitroImageMarkerSpec` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { class HybridNitroImageMarkerSpec; }
 // Forward declaration of `ImageFormat` to properly resolve imports.
@@ -36,10 +42,15 @@ namespace margelo::nitro::nitroimagemarker { struct TextMarkOptions; }
 namespace margelo::nitro::nitroimagemarker { struct TextOptions; }
 // Forward declaration of `TextStyle` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct TextStyle; }
+// Forward declaration of `TileOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct TileOptions; }
 // Forward declaration of `WatermarkImageOptions` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
 
 // Include C++ defined types
+#include "BlurRegion.hpp"
+#include "CropOptions.hpp"
+#include "FilterOptions.hpp"
 #include "HybridNitroImageMarkerSpec.hpp"
 #include "ImageFormat.hpp"
 #include "ImageMarkOptions.hpp"
@@ -54,7 +65,9 @@ namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
 #include "TextMarkOptions.hpp"
 #include "TextOptions.hpp"
 #include "TextStyle.hpp"
+#include "TileOptions.hpp"
 #include "WatermarkImageOptions.hpp"
+#include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
 #include <memory>

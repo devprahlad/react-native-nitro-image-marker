@@ -8,10 +8,20 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `BlurRegion` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct BlurRegion; }
+// Forward declaration of `CropOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct CropOptions; }
+// Forward declaration of `FilterOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct FilterOptions; }
 // Forward declaration of `HybridNitroImageMarkerSpec` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { class HybridNitroImageMarkerSpec; }
 // Forward declaration of `ImageFormat` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { enum class ImageFormat; }
+// Forward declaration of `ImageMarkOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct ImageMarkOptions; }
+// Forward declaration of `ImageOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct ImageOptions; }
 // Forward declaration of `PositionOptions` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct PositionOptions; }
 // Forward declaration of `Position` to properly resolve imports.
@@ -26,10 +36,14 @@ namespace margelo::nitro::nitroimagemarker { enum class TextAlign; }
 namespace margelo::nitro::nitroimagemarker { struct TextBackgroundStyle; }
 // Forward declaration of `TextBackgroundType` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { enum class TextBackgroundType; }
+// Forward declaration of `TextMarkOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct TextMarkOptions; }
 // Forward declaration of `TextOptions` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct TextOptions; }
 // Forward declaration of `TextStyle` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct TextStyle; }
+// Forward declaration of `TileOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct TileOptions; }
 // Forward declaration of `WatermarkImageOptions` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
 
@@ -38,8 +52,13 @@ namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
 namespace NitroImageMarker { class HybridNitroImageMarkerSpec_cxx; }
 
 // Include C++ defined types
+#include "BlurRegion.hpp"
+#include "CropOptions.hpp"
+#include "FilterOptions.hpp"
 #include "HybridNitroImageMarkerSpec.hpp"
 #include "ImageFormat.hpp"
+#include "ImageMarkOptions.hpp"
+#include "ImageOptions.hpp"
 #include "Position.hpp"
 #include "PositionOptions.hpp"
 #include "RadiusValue.hpp"
@@ -47,11 +66,16 @@ namespace NitroImageMarker { class HybridNitroImageMarkerSpec_cxx; }
 #include "TextAlign.hpp"
 #include "TextBackgroundStyle.hpp"
 #include "TextBackgroundType.hpp"
+#include "TextMarkOptions.hpp"
 #include "TextOptions.hpp"
 #include "TextStyle.hpp"
+#include "TileOptions.hpp"
 #include "WatermarkImageOptions.hpp"
+#include <NitroModules/Promise.hpp>
+#include <NitroModules/PromiseHolder.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -63,6 +87,62 @@ namespace NitroImageMarker { class HybridNitroImageMarkerSpec_cxx; }
  */
 namespace margelo::nitro::nitroimagemarker::bridge::swift {
 
+  // pragma MARK: std::shared_ptr<Promise<std::string>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<std::string>>`.
+   */
+  using std__shared_ptr_Promise_std__string__ = std::shared_ptr<Promise<std::string>>;
+  inline std::shared_ptr<Promise<std::string>> create_std__shared_ptr_Promise_std__string__() noexcept {
+    return Promise<std::string>::create();
+  }
+  inline PromiseHolder<std::string> wrap_std__shared_ptr_Promise_std__string__(std::shared_ptr<Promise<std::string>> promise) noexcept {
+    return PromiseHolder<std::string>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void(const std::string& /* result */)>
+  /**
+   * Specialized version of `std::function<void(const std::string&)>`.
+   */
+  using Func_void_std__string = std::function<void(const std::string& /* result */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::string& / * result * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__string_Wrapper final {
+  public:
+    explicit Func_void_std__string_Wrapper(std::function<void(const std::string& /* result */)>&& func): _function(std::make_unique<std::function<void(const std::string& /* result */)>>(std::move(func))) {}
+    inline void call(std::string result) const noexcept {
+      _function->operator()(result);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::string& /* result */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__string create_Func_void_std__string(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__string_Wrapper wrap_Func_void_std__string(Func_void_std__string value) noexcept {
+    return Func_void_std__string_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
+  /**
+   * Specialized version of `std::function<void(const std::exception_ptr&)>`.
+   */
+  using Func_void_std__exception_ptr = std::function<void(const std::exception_ptr& /* error */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::exception_ptr& / * error * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__exception_ptr_Wrapper final {
+  public:
+    explicit Func_void_std__exception_ptr_Wrapper(std::function<void(const std::exception_ptr& /* error */)>&& func): _function(std::make_unique<std::function<void(const std::exception_ptr& /* error */)>>(std::move(func))) {}
+    inline void call(std::exception_ptr error) const noexcept {
+      _function->operator()(error);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::exception_ptr& /* error */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__exception_ptr_Wrapper wrap_Func_void_std__exception_ptr(Func_void_std__exception_ptr value) noexcept {
+    return Func_void_std__exception_ptr_Wrapper(std::move(value));
+  }
+  
   // pragma MARK: std::optional<double>
   /**
    * Specialized version of `std::optional<double>`.
@@ -75,7 +155,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<Position>
@@ -90,7 +170,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline Position get_std__optional_Position_(const std::optional<Position>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<std::string>
@@ -105,7 +185,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<PositionOptions>
@@ -120,7 +200,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline PositionOptions get_std__optional_PositionOptions_(const std::optional<PositionOptions>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<ShadowLayerStyle>
@@ -135,7 +215,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline ShadowLayerStyle get_std__optional_ShadowLayerStyle_(const std::optional<ShadowLayerStyle>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<TextBackgroundType>
@@ -150,7 +230,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline TextBackgroundType get_std__optional_TextBackgroundType_(const std::optional<TextBackgroundType>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<RadiusValue>
@@ -165,7 +245,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline RadiusValue get_std__optional_RadiusValue_(const std::optional<RadiusValue>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<TextBackgroundStyle>
@@ -180,7 +260,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline TextBackgroundStyle get_std__optional_TextBackgroundStyle_(const std::optional<TextBackgroundStyle>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<bool>
@@ -195,7 +275,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline bool get_std__optional_bool_(const std::optional<bool>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<TextAlign>
@@ -210,7 +290,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline TextAlign get_std__optional_TextAlign_(const std::optional<TextAlign>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::optional<TextStyle>
@@ -225,7 +305,7 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline TextStyle get_std__optional_TextStyle_(const std::optional<TextStyle>& optional) noexcept {
-    return *optional;
+    return optional.value();
   }
   
   // pragma MARK: std::vector<TextOptions>
@@ -251,7 +331,108 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline ImageFormat get_std__optional_ImageFormat_(const std::optional<ImageFormat>& optional) noexcept {
-    return *optional;
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<CropOptions>
+  /**
+   * Specialized version of `std::optional<CropOptions>`.
+   */
+  using std__optional_CropOptions_ = std::optional<CropOptions>;
+  inline std::optional<CropOptions> create_std__optional_CropOptions_(const CropOptions& value) noexcept {
+    return std::optional<CropOptions>(value);
+  }
+  inline bool has_value_std__optional_CropOptions_(const std::optional<CropOptions>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline CropOptions get_std__optional_CropOptions_(const std::optional<CropOptions>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<FilterOptions>
+  /**
+   * Specialized version of `std::optional<FilterOptions>`.
+   */
+  using std__optional_FilterOptions_ = std::optional<FilterOptions>;
+  inline std::optional<FilterOptions> create_std__optional_FilterOptions_(const FilterOptions& value) noexcept {
+    return std::optional<FilterOptions>(value);
+  }
+  inline bool has_value_std__optional_FilterOptions_(const std::optional<FilterOptions>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline FilterOptions get_std__optional_FilterOptions_(const std::optional<FilterOptions>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::vector<BlurRegion>
+  /**
+   * Specialized version of `std::vector<BlurRegion>`.
+   */
+  using std__vector_BlurRegion_ = std::vector<BlurRegion>;
+  inline std::vector<BlurRegion> create_std__vector_BlurRegion_(size_t size) noexcept {
+    std::vector<BlurRegion> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::optional<std::vector<BlurRegion>>
+  /**
+   * Specialized version of `std::optional<std::vector<BlurRegion>>`.
+   */
+  using std__optional_std__vector_BlurRegion__ = std::optional<std::vector<BlurRegion>>;
+  inline std::optional<std::vector<BlurRegion>> create_std__optional_std__vector_BlurRegion__(const std::vector<BlurRegion>& value) noexcept {
+    return std::optional<std::vector<BlurRegion>>(value);
+  }
+  inline bool has_value_std__optional_std__vector_BlurRegion__(const std::optional<std::vector<BlurRegion>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::vector<BlurRegion> get_std__optional_std__vector_BlurRegion__(const std::optional<std::vector<BlurRegion>>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<TextOptions>
+  /**
+   * Specialized version of `std::optional<TextOptions>`.
+   */
+  using std__optional_TextOptions_ = std::optional<TextOptions>;
+  inline std::optional<TextOptions> create_std__optional_TextOptions_(const TextOptions& value) noexcept {
+    return std::optional<TextOptions>(value);
+  }
+  inline bool has_value_std__optional_TextOptions_(const std::optional<TextOptions>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline TextOptions get_std__optional_TextOptions_(const std::optional<TextOptions>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<WatermarkImageOptions>
+  /**
+   * Specialized version of `std::optional<WatermarkImageOptions>`.
+   */
+  using std__optional_WatermarkImageOptions_ = std::optional<WatermarkImageOptions>;
+  inline std::optional<WatermarkImageOptions> create_std__optional_WatermarkImageOptions_(const WatermarkImageOptions& value) noexcept {
+    return std::optional<WatermarkImageOptions>(value);
+  }
+  inline bool has_value_std__optional_WatermarkImageOptions_(const std::optional<WatermarkImageOptions>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline WatermarkImageOptions get_std__optional_WatermarkImageOptions_(const std::optional<WatermarkImageOptions>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<TileOptions>
+  /**
+   * Specialized version of `std::optional<TileOptions>`.
+   */
+  using std__optional_TileOptions_ = std::optional<TileOptions>;
+  inline std::optional<TileOptions> create_std__optional_TileOptions_(const TileOptions& value) noexcept {
+    return std::optional<TileOptions>(value);
+  }
+  inline bool has_value_std__optional_TileOptions_(const std::optional<TileOptions>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline TileOptions get_std__optional_TileOptions_(const std::optional<TileOptions>& optional) noexcept {
+    return optional.value();
   }
   
   // pragma MARK: std::vector<WatermarkImageOptions>
@@ -277,7 +458,74 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
     return optional.has_value();
   }
   inline std::vector<TextOptions> get_std__optional_std__vector_TextOptions__(const std::optional<std::vector<TextOptions>>& optional) noexcept {
-    return *optional;
+    return optional.value();
+  }
+  
+  // pragma MARK: std::vector<std::string>
+  /**
+   * Specialized version of `std::vector<std::string>`.
+   */
+  using std__vector_std__string_ = std::vector<std::string>;
+  inline std::vector<std::string> create_std__vector_std__string_(size_t size) noexcept {
+    std::vector<std::string> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::shared_ptr<Promise<std::vector<std::string>>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<std::vector<std::string>>>`.
+   */
+  using std__shared_ptr_Promise_std__vector_std__string___ = std::shared_ptr<Promise<std::vector<std::string>>>;
+  inline std::shared_ptr<Promise<std::vector<std::string>>> create_std__shared_ptr_Promise_std__vector_std__string___() noexcept {
+    return Promise<std::vector<std::string>>::create();
+  }
+  inline PromiseHolder<std::vector<std::string>> wrap_std__shared_ptr_Promise_std__vector_std__string___(std::shared_ptr<Promise<std::vector<std::string>>> promise) noexcept {
+    return PromiseHolder<std::vector<std::string>>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void(const std::vector<std::string>& /* result */)>
+  /**
+   * Specialized version of `std::function<void(const std::vector<std::string>&)>`.
+   */
+  using Func_void_std__vector_std__string_ = std::function<void(const std::vector<std::string>& /* result */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::vector<std::string>& / * result * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__vector_std__string__Wrapper final {
+  public:
+    explicit Func_void_std__vector_std__string__Wrapper(std::function<void(const std::vector<std::string>& /* result */)>&& func): _function(std::make_unique<std::function<void(const std::vector<std::string>& /* result */)>>(std::move(func))) {}
+    inline void call(std::vector<std::string> result) const noexcept {
+      _function->operator()(result);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::vector<std::string>& /* result */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__vector_std__string_ create_Func_void_std__vector_std__string_(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__vector_std__string__Wrapper wrap_Func_void_std__vector_std__string_(Func_void_std__vector_std__string_ value) noexcept {
+    return Func_void_std__vector_std__string__Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::vector<TextMarkOptions>
+  /**
+   * Specialized version of `std::vector<TextMarkOptions>`.
+   */
+  using std__vector_TextMarkOptions_ = std::vector<TextMarkOptions>;
+  inline std::vector<TextMarkOptions> create_std__vector_TextMarkOptions_(size_t size) noexcept {
+    std::vector<TextMarkOptions> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::vector<ImageMarkOptions>
+  /**
+   * Specialized version of `std::vector<ImageMarkOptions>`.
+   */
+  using std__vector_ImageMarkOptions_ = std::vector<ImageMarkOptions>;
+  inline std::vector<ImageMarkOptions> create_std__vector_ImageMarkOptions_(size_t size) noexcept {
+    std::vector<ImageMarkOptions> vector;
+    vector.reserve(size);
+    return vector;
   }
   
   // pragma MARK: std::shared_ptr<HybridNitroImageMarkerSpec>
@@ -292,13 +540,22 @@ namespace margelo::nitro::nitroimagemarker::bridge::swift {
   using std__weak_ptr_HybridNitroImageMarkerSpec_ = std::weak_ptr<HybridNitroImageMarkerSpec>;
   inline std__weak_ptr_HybridNitroImageMarkerSpec_ weakify_std__shared_ptr_HybridNitroImageMarkerSpec_(const std::shared_ptr<HybridNitroImageMarkerSpec>& strong) noexcept { return strong; }
   
-  // pragma MARK: Result<std::string>
-  using Result_std__string_ = Result<std::string>;
-  inline Result_std__string_ create_Result_std__string_(const std::string& value) noexcept {
-    return Result<std::string>::withValue(value);
+  // pragma MARK: Result<std::shared_ptr<Promise<std::string>>>
+  using Result_std__shared_ptr_Promise_std__string___ = Result<std::shared_ptr<Promise<std::string>>>;
+  inline Result_std__shared_ptr_Promise_std__string___ create_Result_std__shared_ptr_Promise_std__string___(const std::shared_ptr<Promise<std::string>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<std::string>>>::withValue(value);
   }
-  inline Result_std__string_ create_Result_std__string_(const std::exception_ptr& error) noexcept {
-    return Result<std::string>::withError(error);
+  inline Result_std__shared_ptr_Promise_std__string___ create_Result_std__shared_ptr_Promise_std__string___(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<std::string>>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::shared_ptr<Promise<std::vector<std::string>>>>
+  using Result_std__shared_ptr_Promise_std__vector_std__string____ = Result<std::shared_ptr<Promise<std::vector<std::string>>>>;
+  inline Result_std__shared_ptr_Promise_std__vector_std__string____ create_Result_std__shared_ptr_Promise_std__vector_std__string____(const std::shared_ptr<Promise<std::vector<std::string>>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<std::vector<std::string>>>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_Promise_std__vector_std__string____ create_Result_std__shared_ptr_Promise_std__vector_std__string____(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<std::vector<std::string>>>>::withError(error);
   }
 
 } // namespace margelo::nitro::nitroimagemarker::bridge::swift

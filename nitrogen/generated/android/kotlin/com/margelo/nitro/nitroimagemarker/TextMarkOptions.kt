@@ -34,7 +34,19 @@ data class TextMarkOptions(
   val saveFormat: ImageFormat?,
   @DoNotStrip
   @Keep
-  val maxSize: Double?
+  val maxSize: Double?,
+  @DoNotStrip
+  @Keep
+  val crop: CropOptions?,
+  @DoNotStrip
+  @Keep
+  val filter: FilterOptions?,
+  @DoNotStrip
+  @Keep
+  val blurRegions: Array<BlurRegion>?,
+  @DoNotStrip
+  @Keep
+  val tile: TileOptions?
 ) {
   /* primary constructor */
 
@@ -46,8 +58,8 @@ data class TextMarkOptions(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(backgroundImage: ImageOptions, watermarkTexts: Array<TextOptions>, quality: Double?, filename: String?, saveFormat: ImageFormat?, maxSize: Double?): TextMarkOptions {
-      return TextMarkOptions(backgroundImage, watermarkTexts, quality, filename, saveFormat, maxSize)
+    private fun fromCpp(backgroundImage: ImageOptions, watermarkTexts: Array<TextOptions>, quality: Double?, filename: String?, saveFormat: ImageFormat?, maxSize: Double?, crop: CropOptions?, filter: FilterOptions?, blurRegions: Array<BlurRegion>?, tile: TileOptions?): TextMarkOptions {
+      return TextMarkOptions(backgroundImage, watermarkTexts, quality, filename, saveFormat, maxSize, crop, filter, blurRegions, tile)
     }
   }
 }

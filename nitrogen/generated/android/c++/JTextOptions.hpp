@@ -38,7 +38,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JTextOptions final: public jni::JavaClass<JTextOptions> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextOptions;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextOptions;";
 
   public:
     /**

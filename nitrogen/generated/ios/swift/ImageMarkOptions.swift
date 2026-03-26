@@ -5,7 +5,6 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import Foundation
 import NitroModules
 
 /**
@@ -19,7 +18,7 @@ public extension ImageMarkOptions {
   /**
    * Create a new instance of `ImageMarkOptions`.
    */
-  init(backgroundImage: ImageOptions, watermarkImages: [WatermarkImageOptions], watermarkTexts: [TextOptions]?, quality: Double?, filename: String?, saveFormat: ImageFormat?, maxSize: Double?) {
+  init(backgroundImage: ImageOptions, watermarkImages: [WatermarkImageOptions], watermarkTexts: [TextOptions]?, quality: Double?, filename: String?, saveFormat: ImageFormat?, maxSize: Double?, crop: CropOptions?, filter: FilterOptions?, blurRegions: [BlurRegion]?, tile: TileOptions?) {
     self.init(backgroundImage, { () -> bridge.std__vector_WatermarkImageOptions_ in
       var __vector = bridge.create_std__vector_WatermarkImageOptions_(watermarkImages.count)
       for __item in watermarkImages {
@@ -62,6 +61,36 @@ public extension ImageMarkOptions {
       } else {
         return .init()
       }
+    }(), { () -> bridge.std__optional_CropOptions_ in
+      if let __unwrappedValue = crop {
+        return bridge.create_std__optional_CropOptions_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_FilterOptions_ in
+      if let __unwrappedValue = filter {
+        return bridge.create_std__optional_FilterOptions_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_std__vector_BlurRegion__ in
+      if let __unwrappedValue = blurRegions {
+        return bridge.create_std__optional_std__vector_BlurRegion__({ () -> bridge.std__vector_BlurRegion_ in
+          var __vector = bridge.create_std__vector_BlurRegion_(__unwrappedValue.count)
+          for __item in __unwrappedValue {
+            __vector.push_back(__item)
+          }
+          return __vector
+        }())
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_TileOptions_ in
+      if let __unwrappedValue = tile {
+        return bridge.create_std__optional_TileOptions_(__unwrappedValue)
+      } else {
+        return .init()
+      }
     }())
   }
 
@@ -89,7 +118,14 @@ public extension ImageMarkOptions {
   
   @inline(__always)
   var quality: Double? {
-    return self.__quality.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__quality) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__quality)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
@@ -111,6 +147,40 @@ public extension ImageMarkOptions {
   
   @inline(__always)
   var maxSize: Double? {
-    return self.__maxSize.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__maxSize) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__maxSize)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var crop: CropOptions? {
+    return self.__crop.value
+  }
+  
+  @inline(__always)
+  var filter: FilterOptions? {
+    return self.__filter.value
+  }
+  
+  @inline(__always)
+  var blurRegions: [BlurRegion]? {
+    return { () -> [BlurRegion]? in
+      if bridge.has_value_std__optional_std__vector_BlurRegion__(self.__blurRegions) {
+        let __unwrapped = bridge.get_std__optional_std__vector_BlurRegion__(self.__blurRegions)
+        return __unwrapped.map({ __item in __item })
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var tile: TileOptions? {
+    return self.__tile.value
   }
 }

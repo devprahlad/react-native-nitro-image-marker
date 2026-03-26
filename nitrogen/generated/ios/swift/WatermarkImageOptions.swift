@@ -5,7 +5,6 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import Foundation
 import NitroModules
 
 /**
@@ -59,16 +58,37 @@ public extension WatermarkImageOptions {
   
   @inline(__always)
   var scale: Double? {
-    return self.__scale.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__scale) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__scale)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
   var rotate: Double? {
-    return self.__rotate.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__rotate) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__rotate)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
   var alpha: Double? {
-    return self.__alpha.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__alpha) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__alpha)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
 }

@@ -21,24 +21,34 @@
 namespace margelo::nitro::nitroimagemarker {
 
 int initialize(JavaVM* vm) {
+  return facebook::jni::initialize(vm, []() {
+    ::margelo::nitro::nitroimagemarker::registerAllNatives();
+  });
+}
+
+struct JHybridNitroImageMarkerSpecImpl: public jni::JavaClass<JHybridNitroImageMarkerSpecImpl, JHybridNitroImageMarkerSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/HybridNitroImageMarker;";
+  static std::shared_ptr<JHybridNitroImageMarkerSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridNitroImageMarkerSpecImpl::javaobject()>();
+    jni::local_ref<JHybridNitroImageMarkerSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridNitroImageMarkerSpec();
+  }
+};
+
+void registerAllNatives() {
   using namespace margelo::nitro;
   using namespace margelo::nitro::nitroimagemarker;
-  using namespace facebook;
 
-  return facebook::jni::initialize(vm, [] {
-    // Register native JNI methods
-    margelo::nitro::nitroimagemarker::JHybridNitroImageMarkerSpec::registerNatives();
+  // Register native JNI methods
+  margelo::nitro::nitroimagemarker::JHybridNitroImageMarkerSpec::CxxPart::registerNatives();
 
-    // Register Nitro Hybrid Objects
-    HybridObjectRegistry::registerHybridObjectConstructor(
-      "NitroImageMarker",
-      []() -> std::shared_ptr<HybridObject> {
-        static DefaultConstructableObject<JHybridNitroImageMarkerSpec::javaobject> object("com/nitroimagemarker/HybridNitroImageMarker");
-        auto instance = object.create();
-        return instance->cthis()->shared();
-      }
-    );
-  });
+  // Register Nitro Hybrid Objects
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "NitroImageMarker",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridNitroImageMarkerSpecImpl::create();
+    }
+  );
 }
 
 } // namespace margelo::nitro::nitroimagemarker

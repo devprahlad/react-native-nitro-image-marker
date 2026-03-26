@@ -10,8 +10,14 @@
 #include <fbjni/fbjni.h>
 #include "TextMarkOptions.hpp"
 
+#include "BlurRegion.hpp"
+#include "CropOptions.hpp"
+#include "FilterOptions.hpp"
 #include "ImageFormat.hpp"
 #include "ImageOptions.hpp"
+#include "JBlurRegion.hpp"
+#include "JCropOptions.hpp"
+#include "JFilterOptions.hpp"
 #include "JImageFormat.hpp"
 #include "JImageOptions.hpp"
 #include "JPosition.hpp"
@@ -23,6 +29,8 @@
 #include "JTextBackgroundType.hpp"
 #include "JTextOptions.hpp"
 #include "JTextStyle.hpp"
+#include "JTileOptions.hpp"
+#include "JWatermarkImageOptions.hpp"
 #include "Position.hpp"
 #include "PositionOptions.hpp"
 #include "RadiusValue.hpp"
@@ -32,6 +40,8 @@
 #include "TextBackgroundType.hpp"
 #include "TextOptions.hpp"
 #include "TextStyle.hpp"
+#include "TileOptions.hpp"
+#include "WatermarkImageOptions.hpp"
 #include <optional>
 #include <string>
 #include <vector>
@@ -45,7 +55,7 @@ namespace margelo::nitro::nitroimagemarker {
    */
   struct JTextMarkOptions final: public jni::JavaClass<JTextMarkOptions> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextMarkOptions;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/TextMarkOptions;";
 
   public:
     /**
@@ -67,6 +77,14 @@ namespace margelo::nitro::nitroimagemarker {
       jni::local_ref<JImageFormat> saveFormat = this->getFieldValue(fieldSaveFormat);
       static const auto fieldMaxSize = clazz->getField<jni::JDouble>("maxSize");
       jni::local_ref<jni::JDouble> maxSize = this->getFieldValue(fieldMaxSize);
+      static const auto fieldCrop = clazz->getField<JCropOptions>("crop");
+      jni::local_ref<JCropOptions> crop = this->getFieldValue(fieldCrop);
+      static const auto fieldFilter = clazz->getField<JFilterOptions>("filter");
+      jni::local_ref<JFilterOptions> filter = this->getFieldValue(fieldFilter);
+      static const auto fieldBlurRegions = clazz->getField<jni::JArrayClass<JBlurRegion>>("blurRegions");
+      jni::local_ref<jni::JArrayClass<JBlurRegion>> blurRegions = this->getFieldValue(fieldBlurRegions);
+      static const auto fieldTile = clazz->getField<JTileOptions>("tile");
+      jni::local_ref<JTileOptions> tile = this->getFieldValue(fieldTile);
       return TextMarkOptions(
         backgroundImage->toCpp(),
         [&]() {
@@ -82,7 +100,20 @@ namespace margelo::nitro::nitroimagemarker {
         quality != nullptr ? std::make_optional(quality->value()) : std::nullopt,
         filename != nullptr ? std::make_optional(filename->toStdString()) : std::nullopt,
         saveFormat != nullptr ? std::make_optional(saveFormat->toCpp()) : std::nullopt,
-        maxSize != nullptr ? std::make_optional(maxSize->value()) : std::nullopt
+        maxSize != nullptr ? std::make_optional(maxSize->value()) : std::nullopt,
+        crop != nullptr ? std::make_optional(crop->toCpp()) : std::nullopt,
+        filter != nullptr ? std::make_optional(filter->toCpp()) : std::nullopt,
+        blurRegions != nullptr ? std::make_optional([&]() {
+          size_t __size = blurRegions->size();
+          std::vector<BlurRegion> __vector;
+          __vector.reserve(__size);
+          for (size_t __i = 0; __i < __size; __i++) {
+            auto __element = blurRegions->getElement(__i);
+            __vector.push_back(__element->toCpp());
+          }
+          return __vector;
+        }()) : std::nullopt,
+        tile != nullptr ? std::make_optional(tile->toCpp()) : std::nullopt
       );
     }
 
@@ -92,7 +123,7 @@ namespace margelo::nitro::nitroimagemarker {
      */
     [[maybe_unused]]
     static jni::local_ref<JTextMarkOptions::javaobject> fromCpp(const TextMarkOptions& value) {
-      using JSignature = JTextMarkOptions(jni::alias_ref<JImageOptions>, jni::alias_ref<jni::JArrayClass<JTextOptions>>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JString>, jni::alias_ref<JImageFormat>, jni::alias_ref<jni::JDouble>);
+      using JSignature = JTextMarkOptions(jni::alias_ref<JImageOptions>, jni::alias_ref<jni::JArrayClass<JTextOptions>>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JString>, jni::alias_ref<JImageFormat>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JCropOptions>, jni::alias_ref<JFilterOptions>, jni::alias_ref<jni::JArrayClass<JBlurRegion>>, jni::alias_ref<JTileOptions>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -111,7 +142,20 @@ namespace margelo::nitro::nitroimagemarker {
         value.quality.has_value() ? jni::JDouble::valueOf(value.quality.value()) : nullptr,
         value.filename.has_value() ? jni::make_jstring(value.filename.value()) : nullptr,
         value.saveFormat.has_value() ? JImageFormat::fromCpp(value.saveFormat.value()) : nullptr,
-        value.maxSize.has_value() ? jni::JDouble::valueOf(value.maxSize.value()) : nullptr
+        value.maxSize.has_value() ? jni::JDouble::valueOf(value.maxSize.value()) : nullptr,
+        value.crop.has_value() ? JCropOptions::fromCpp(value.crop.value()) : nullptr,
+        value.filter.has_value() ? JFilterOptions::fromCpp(value.filter.value()) : nullptr,
+        value.blurRegions.has_value() ? [&]() {
+          size_t __size = value.blurRegions.value().size();
+          jni::local_ref<jni::JArrayClass<JBlurRegion>> __array = jni::JArrayClass<JBlurRegion>::newArray(__size);
+          for (size_t __i = 0; __i < __size; __i++) {
+            const auto& __element = value.blurRegions.value()[__i];
+            auto __elementJni = JBlurRegion::fromCpp(__element);
+            __array->setElement(__i, *__elementJni);
+          }
+          return __array;
+        }() : nullptr,
+        value.tile.has_value() ? JTileOptions::fromCpp(value.tile.value()) : nullptr
       );
     }
   };

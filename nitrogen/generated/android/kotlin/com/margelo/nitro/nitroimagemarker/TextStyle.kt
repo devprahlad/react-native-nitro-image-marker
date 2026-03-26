@@ -64,7 +64,13 @@ data class TextStyle(
   val strokeColor: String?,
   @DoNotStrip
   @Keep
-  val strokeWidth: Double?
+  val strokeWidth: Double?,
+  @DoNotStrip
+  @Keep
+  val alpha: Double?,
+  @DoNotStrip
+  @Keep
+  val maxWidth: Double?
 ) {
   /* primary constructor */
 
@@ -76,8 +82,8 @@ data class TextStyle(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(color: String?, fontName: String?, fontSize: Double?, shadowStyle: ShadowLayerStyle?, shadow: ShadowLayerStyle?, backgroundColor: String?, textBackgroundStyle: TextBackgroundStyle?, underline: Boolean?, skewX: Double?, strikeThrough: Boolean?, textAlign: TextAlign?, italic: Boolean?, bold: Boolean?, rotate: Double?, strokeColor: String?, strokeWidth: Double?): TextStyle {
-      return TextStyle(color, fontName, fontSize, shadowStyle, shadow, backgroundColor, textBackgroundStyle, underline, skewX, strikeThrough, textAlign, italic, bold, rotate, strokeColor, strokeWidth)
+    private fun fromCpp(color: String?, fontName: String?, fontSize: Double?, shadowStyle: ShadowLayerStyle?, shadow: ShadowLayerStyle?, backgroundColor: String?, textBackgroundStyle: TextBackgroundStyle?, underline: Boolean?, skewX: Double?, strikeThrough: Boolean?, textAlign: TextAlign?, italic: Boolean?, bold: Boolean?, rotate: Double?, strokeColor: String?, strokeWidth: Double?, alpha: Double?, maxWidth: Double?): TextStyle {
+      return TextStyle(color, fontName, fontSize, shadowStyle, shadow, backgroundColor, textBackgroundStyle, underline, skewX, strikeThrough, textAlign, italic, bold, rotate, strokeColor, strokeWidth, alpha, maxWidth)
     }
   }
 }

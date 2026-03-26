@@ -18,34 +18,33 @@ namespace margelo::nitro::nitroimagemarker {
 
   using namespace facebook;
 
-  class JHybridNitroImageMarkerSpec: public jni::HybridClass<JHybridNitroImageMarkerSpec, JHybridObject>,
-                                     public virtual HybridNitroImageMarkerSpec {
+  class JHybridNitroImageMarkerSpec: public virtual HybridNitroImageMarkerSpec, public virtual JHybridObject {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/HybridNitroImageMarkerSpec;";
-    static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
-    static void registerNatives();
+    struct JavaPart: public jni::JavaClass<JavaPart, JHybridObject::JavaPart> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/HybridNitroImageMarkerSpec;";
+      std::shared_ptr<JHybridNitroImageMarkerSpec> getJHybridNitroImageMarkerSpec();
+    };
+    struct CxxPart: public jni::HybridClass<CxxPart, JHybridObject::CxxPart> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/nitroimagemarker/HybridNitroImageMarkerSpec$CxxPart;";
+      static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
+      static void registerNatives();
+      using HybridBase::HybridBase;
+    protected:
+      std::shared_ptr<JHybridObject> createHybridObject(const jni::local_ref<JHybridObject::JavaPart>& javaPart) override;
+    };
 
-  protected:
-    // C++ constructor (called from Java via `initHybrid()`)
-    explicit JHybridNitroImageMarkerSpec(jni::alias_ref<jhybridobject> jThis) :
+  public:
+    explicit JHybridNitroImageMarkerSpec(const jni::local_ref<JHybridNitroImageMarkerSpec::JavaPart>& javaPart):
       HybridObject(HybridNitroImageMarkerSpec::TAG),
-      HybridBase(jThis),
-      _javaPart(jni::make_global(jThis)) {}
-
-  public:
+      JHybridObject(javaPart),
+      _javaPart(jni::make_global(javaPart)) {}
     ~JHybridNitroImageMarkerSpec() override {
       // Hermes GC can destroy JS objects on a non-JNI Thread.
       jni::ThreadScope::WithClassLoader([&] { _javaPart.reset(); });
     }
 
   public:
-    size_t getExternalMemorySize() noexcept override;
-    bool equals(const std::shared_ptr<HybridObject>& other) override;
-    void dispose() noexcept override;
-    std::string toString() override;
-
-  public:
-    inline const jni::global_ref<JHybridNitroImageMarkerSpec::javaobject>& getJavaPart() const noexcept {
+    inline const jni::global_ref<JHybridNitroImageMarkerSpec::JavaPart>& getJavaPart() const noexcept {
       return _javaPart;
     }
 
@@ -55,13 +54,13 @@ namespace margelo::nitro::nitroimagemarker {
 
   public:
     // Methods
-    std::string markText(const TextMarkOptions& options) override;
-    std::string markImage(const ImageMarkOptions& options) override;
+    std::shared_ptr<Promise<std::string>> markText(const TextMarkOptions& options) override;
+    std::shared_ptr<Promise<std::string>> markImage(const ImageMarkOptions& options) override;
+    std::shared_ptr<Promise<std::vector<std::string>>> markTextBatch(const std::vector<TextMarkOptions>& optionsArray) override;
+    std::shared_ptr<Promise<std::vector<std::string>>> markImageBatch(const std::vector<ImageMarkOptions>& optionsArray) override;
 
   private:
-    friend HybridBase;
-    using HybridBase::HybridBase;
-    jni::global_ref<JHybridNitroImageMarkerSpec::javaobject> _javaPart;
+    jni::global_ref<JHybridNitroImageMarkerSpec::JavaPart> _javaPart;
   };
 
 } // namespace margelo::nitro::nitroimagemarker

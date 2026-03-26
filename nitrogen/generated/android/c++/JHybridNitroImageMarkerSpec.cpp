@@ -31,19 +31,29 @@ namespace margelo::nitro::nitroimagemarker { struct RadiusValue; }
 namespace margelo::nitro::nitroimagemarker { enum class TextAlign; }
 // Forward declaration of `ImageFormat` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { enum class ImageFormat; }
-// Forward declaration of `ImageMarkOptions` to properly resolve imports.
-namespace margelo::nitro::nitroimagemarker { struct ImageMarkOptions; }
+// Forward declaration of `CropOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct CropOptions; }
+// Forward declaration of `FilterOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct FilterOptions; }
+// Forward declaration of `BlurRegion` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct BlurRegion; }
+// Forward declaration of `TileOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct TileOptions; }
 // Forward declaration of `WatermarkImageOptions` to properly resolve imports.
 namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
+// Forward declaration of `ImageMarkOptions` to properly resolve imports.
+namespace margelo::nitro::nitroimagemarker { struct ImageMarkOptions; }
 
 #include <string>
+#include <NitroModules/Promise.hpp>
+#include <NitroModules/JPromise.hpp>
+#include <vector>
 #include "TextMarkOptions.hpp"
 #include "JTextMarkOptions.hpp"
 #include "ImageOptions.hpp"
 #include "JImageOptions.hpp"
 #include <optional>
 #include "TextOptions.hpp"
-#include <vector>
 #include "JTextOptions.hpp"
 #include "PositionOptions.hpp"
 #include "JPositionOptions.hpp"
@@ -63,59 +73,151 @@ namespace margelo::nitro::nitroimagemarker { struct WatermarkImageOptions; }
 #include "JTextAlign.hpp"
 #include "ImageFormat.hpp"
 #include "JImageFormat.hpp"
-#include "ImageMarkOptions.hpp"
-#include "JImageMarkOptions.hpp"
+#include "CropOptions.hpp"
+#include "JCropOptions.hpp"
+#include "FilterOptions.hpp"
+#include "JFilterOptions.hpp"
+#include "BlurRegion.hpp"
+#include "JBlurRegion.hpp"
+#include "TileOptions.hpp"
+#include "JTileOptions.hpp"
 #include "WatermarkImageOptions.hpp"
 #include "JWatermarkImageOptions.hpp"
+#include "ImageMarkOptions.hpp"
+#include "JImageMarkOptions.hpp"
 
 namespace margelo::nitro::nitroimagemarker {
 
-  jni::local_ref<JHybridNitroImageMarkerSpec::jhybriddata> JHybridNitroImageMarkerSpec::initHybrid(jni::alias_ref<jhybridobject> jThis) {
+  std::shared_ptr<JHybridNitroImageMarkerSpec> JHybridNitroImageMarkerSpec::JavaPart::getJHybridNitroImageMarkerSpec() {
+    auto hybridObject = JHybridObject::JavaPart::getJHybridObject();
+    auto castHybridObject = std::dynamic_pointer_cast<JHybridNitroImageMarkerSpec>(hybridObject);
+    if (castHybridObject == nullptr) [[unlikely]] {
+      throw std::runtime_error("Failed to downcast JHybridObject to JHybridNitroImageMarkerSpec!");
+    }
+    return castHybridObject;
+  }
+
+  jni::local_ref<JHybridNitroImageMarkerSpec::CxxPart::jhybriddata> JHybridNitroImageMarkerSpec::CxxPart::initHybrid(jni::alias_ref<jhybridobject> jThis) {
     return makeCxxInstance(jThis);
   }
 
-  void JHybridNitroImageMarkerSpec::registerNatives() {
-    registerHybrid({
-      makeNativeMethod("initHybrid", JHybridNitroImageMarkerSpec::initHybrid),
-    });
-  }
-
-  size_t JHybridNitroImageMarkerSpec::getExternalMemorySize() noexcept {
-    static const auto method = javaClassStatic()->getMethod<jlong()>("getMemorySize");
-    return method(_javaPart);
-  }
-
-  bool JHybridNitroImageMarkerSpec::equals(const std::shared_ptr<HybridObject>& other) {
-    if (auto otherCast = std::dynamic_pointer_cast<JHybridNitroImageMarkerSpec>(other)) {
-      return _javaPart == otherCast->_javaPart;
+  std::shared_ptr<JHybridObject> JHybridNitroImageMarkerSpec::CxxPart::createHybridObject(const jni::local_ref<JHybridObject::JavaPart>& javaPart) {
+    auto castJavaPart = jni::dynamic_ref_cast<JHybridNitroImageMarkerSpec::JavaPart>(javaPart);
+    if (castJavaPart == nullptr) [[unlikely]] {
+      throw std::runtime_error("Failed to cast JHybridObject::JavaPart to JHybridNitroImageMarkerSpec::JavaPart!");
     }
-    return false;
+    return std::make_shared<JHybridNitroImageMarkerSpec>(castJavaPart);
   }
 
-  void JHybridNitroImageMarkerSpec::dispose() noexcept {
-    static const auto method = javaClassStatic()->getMethod<void()>("dispose");
-    method(_javaPart);
-  }
-
-  std::string JHybridNitroImageMarkerSpec::toString() {
-    static const auto method = javaClassStatic()->getMethod<jni::JString()>("toString");
-    auto javaString = method(_javaPart);
-    return javaString->toStdString();
+  void JHybridNitroImageMarkerSpec::CxxPart::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("initHybrid", JHybridNitroImageMarkerSpec::CxxPart::initHybrid),
+    });
   }
 
   // Properties
   
 
   // Methods
-  std::string JHybridNitroImageMarkerSpec::markText(const TextMarkOptions& options) {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>(jni::alias_ref<JTextMarkOptions> /* options */)>("markText");
+  std::shared_ptr<Promise<std::string>> JHybridNitroImageMarkerSpec::markText(const TextMarkOptions& options) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JTextMarkOptions> /* options */)>("markText");
     auto __result = method(_javaPart, JTextMarkOptions::fromCpp(options));
-    return __result->toStdString();
+    return [&]() {
+      auto __promise = Promise<std::string>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<jni::JString>(__boxedResult);
+        __promise->resolve(__result->toStdString());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
   }
-  std::string JHybridNitroImageMarkerSpec::markImage(const ImageMarkOptions& options) {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>(jni::alias_ref<JImageMarkOptions> /* options */)>("markImage");
+  std::shared_ptr<Promise<std::string>> JHybridNitroImageMarkerSpec::markImage(const ImageMarkOptions& options) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JImageMarkOptions> /* options */)>("markImage");
     auto __result = method(_javaPart, JImageMarkOptions::fromCpp(options));
-    return __result->toStdString();
+    return [&]() {
+      auto __promise = Promise<std::string>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<jni::JString>(__boxedResult);
+        __promise->resolve(__result->toStdString());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<std::vector<std::string>>> JHybridNitroImageMarkerSpec::markTextBatch(const std::vector<TextMarkOptions>& optionsArray) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JArrayClass<JTextMarkOptions>> /* optionsArray */)>("markTextBatch");
+    auto __result = method(_javaPart, [&]() {
+      size_t __size = optionsArray.size();
+      jni::local_ref<jni::JArrayClass<JTextMarkOptions>> __array = jni::JArrayClass<JTextMarkOptions>::newArray(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        const auto& __element = optionsArray[__i];
+        auto __elementJni = JTextMarkOptions::fromCpp(__element);
+        __array->setElement(__i, *__elementJni);
+      }
+      return __array;
+    }());
+    return [&]() {
+      auto __promise = Promise<std::vector<std::string>>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<jni::JArrayClass<jni::JString>>(__boxedResult);
+        __promise->resolve([&]() {
+          size_t __size = __result->size();
+          std::vector<std::string> __vector;
+          __vector.reserve(__size);
+          for (size_t __i = 0; __i < __size; __i++) {
+            auto __element = __result->getElement(__i);
+            __vector.push_back(__element->toStdString());
+          }
+          return __vector;
+        }());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<std::vector<std::string>>> JHybridNitroImageMarkerSpec::markImageBatch(const std::vector<ImageMarkOptions>& optionsArray) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JArrayClass<JImageMarkOptions>> /* optionsArray */)>("markImageBatch");
+    auto __result = method(_javaPart, [&]() {
+      size_t __size = optionsArray.size();
+      jni::local_ref<jni::JArrayClass<JImageMarkOptions>> __array = jni::JArrayClass<JImageMarkOptions>::newArray(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        const auto& __element = optionsArray[__i];
+        auto __elementJni = JImageMarkOptions::fromCpp(__element);
+        __array->setElement(__i, *__elementJni);
+      }
+      return __array;
+    }());
+    return [&]() {
+      auto __promise = Promise<std::vector<std::string>>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<jni::JArrayClass<jni::JString>>(__boxedResult);
+        __promise->resolve([&]() {
+          size_t __size = __result->size();
+          std::vector<std::string> __vector;
+          __vector.reserve(__size);
+          for (size_t __i = 0; __i < __size; __i++) {
+            auto __element = __result->getElement(__i);
+            __vector.push_back(__element->toStdString());
+          }
+          return __vector;
+        }());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
   }
 
 } // namespace margelo::nitro::nitroimagemarker

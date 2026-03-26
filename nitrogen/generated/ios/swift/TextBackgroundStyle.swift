@@ -5,7 +5,6 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import Foundation
 import NitroModules
 
 /**
@@ -113,7 +112,14 @@ public extension TextBackgroundStyle {
   
   @inline(__always)
   var cornerRadiusAll: Double? {
-    return self.__cornerRadiusAll.value
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__cornerRadiusAll) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__cornerRadiusAll)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
   }
   
   @inline(__always)
