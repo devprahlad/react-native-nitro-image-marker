@@ -6,6 +6,30 @@ High-performance image watermarking for React Native, built with [Nitro Modules]
 [![Downloads](https://img.shields.io/npm/dm/react-native-nitro-image-marker.svg)](https://www.npmjs.com/package/react-native-nitro-image-marker)
 [![License](https://img.shields.io/npm/l/react-native-nitro-image-marker.svg)](https://github.com/patrickkabwe/react-native-nitro-image-marker/LICENSE)
 
+## Documentation
+
+- Full documentation: [rnnim.onpapertech.com](https://rnnim.onpapertech.com/)
+- Methods reference:
+  [markText](https://rnnim.onpapertech.com/#markText),
+  [markImage](https://rnnim.onpapertech.com/#markImage),
+  [markTextBatch](https://rnnim.onpapertech.com/#markTextBatch),
+  [markImageBatch](https://rnnim.onpapertech.com/#markImageBatch)
+- Types reference:
+  [TextMarkOptions](https://rnnim.onpapertech.com/#TextMarkOptions),
+  [ImageMarkOptions](https://rnnim.onpapertech.com/#ImageMarkOptions),
+  [ImageOptions](https://rnnim.onpapertech.com/#ImageOptions),
+  [TextOptions](https://rnnim.onpapertech.com/#TextOptions),
+  [TextStyle](https://rnnim.onpapertech.com/#TextStyle),
+  [TextBackgroundStyle](https://rnnim.onpapertech.com/#TextBackgroundStyle),
+  [ShadowLayerStyle](https://rnnim.onpapertech.com/#ShadowLayerStyle),
+  [WatermarkImageOptions](https://rnnim.onpapertech.com/#WatermarkImageOptions),
+  [PositionOptions](https://rnnim.onpapertech.com/#PositionOptions),
+  [CropOptions](https://rnnim.onpapertech.com/#CropOptions),
+  [FilterOptions](https://rnnim.onpapertech.com/#FilterOptions),
+  [BlurRegion](https://rnnim.onpapertech.com/#BlurRegion),
+  [TileOptions](https://rnnim.onpapertech.com/#TileOptions),
+  [RadiusValue](https://rnnim.onpapertech.com/#RadiusValue)
+
 ## Features
 
 - **Text watermarks** — color, font, size, bold, italic, underline, shadow, background, rotation, alpha, maxWidth
@@ -55,6 +79,28 @@ const filePath = await markText({
 ```
 
 > **Note:** All methods return `Promise<string>` — use `await` or `.then()`.
+
+## Exports
+
+```ts
+import Marker, {
+  markText,
+  markImage,
+  markTextBatch,
+  markImageBatch,
+  ImageFormat,
+  Position,
+  TextAlign,
+  TextBackgroundType,
+} from 'react-native-nitro-image-marker'
+```
+
+Named exports:
+
+- Methods: `markText`, `markImage`, `markTextBatch`, `markImageBatch`
+- Enums: `ImageFormat`, `Position`, `TextAlign`, `TextBackgroundType`
+- Types: `Dimension`, `ImageSource`, `PositionOptions`, `ShadowLayerStyle`, `RadiusValue`, `TextBackgroundStyle`, `TextStyle`, `TextOptions`, `ImageOptions`, `WatermarkImageOptions`, `CropOptions`, `FilterOptions`, `BlurRegion`, `TileOptions`, `TextMarkOptions`, `ImageMarkOptions`
+- Default export: `Marker`
 
 ## Methods
 
@@ -380,6 +426,14 @@ npx expo run:android
 | `TextAlign` | `left`, `center`, `right` |
 | `TextBackgroundType` | `none`, `stretchX`, `stretchY`, `cornerRadius` |
 | `ImageFormat` | `jpg`, `png`, `base64` |
+
+### Utility Types
+
+| Type | Definition |
+| --- | --- |
+| `Dimension` | `number \| string` |
+| `ImageSource` | `ImageSourcePropType \| string` |
+| `RadiusValue` | `{ topLeft?: number; topRight?: number; bottomLeft?: number; bottomRight?: number }` |
 
 ### `TextMarkOptions`
 

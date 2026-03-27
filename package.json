@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-image-marker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "High-performance image watermarking for React Native. Add text, image overlays, tile watermarks, crop, blur regions, filters (grayscale, brightness, contrast), and batch process images. Built with Nitro Modules for native speed on iOS and Android.",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -80,7 +80,7 @@
   "author": "Prahlad",
   "license": "MIT",
   "bugs": "https://github.com/devprahlad/react-native-nitro-image-marker/issues",
-  "homepage": "https://github.com/devprahlad/react-native-nitro-image-marker",
+  "homepage": "https://rnnim.onpapertech.com/",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
